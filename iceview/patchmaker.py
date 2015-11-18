@@ -6,6 +6,8 @@ from skimage.io import imsave
 import argparse
 import sys
 import os
+
+
 def patchmaker(img, imsize=(255,255), percent_overlap=10):
     """
     Split an image into overlapping patches

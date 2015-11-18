@@ -1,0 +1,349 @@
+#% Do not delete the line below; configure depends on this
+#  \DeclareLaTeXClass[report]{report (UTSAthesis 2012)}
+# Article textclass definition file. Taken from initial LyX source code
+# Author : Matthias Ettrich <ettrich@informatik.uni-tuebingen.de>
+# Transposed by Pascal André <andre@via.ecp.fr>
+# Heavily modifed and enhanced by serveral developers.
+
+# Input general definitions
+Format 35
+Input report.layout
+
+Preamble
+\usepackage{UTSAthesis}      
+\usepackage{times}            
+\usepackage{latexsym}
+
+\newenvironment{ruledcenter}{%
+  \begin{center}
+  \rule{\textwidth}{1mm} } {%
+  \rule{\textwidth}{1mm} 
+  \end{center}}%
+
+
+EndPreamble
+
+#MaxCounter		Counter_Section
+SecNumDepth		3
+TocDepth		3
+DefaultStyle            Standard
+
+NoStyle Part
+NoStyle Part*
+NoStyle Paragraph*
+NoStyle Subparagraph*
+
+
+# This is just to show how to declare the default font.
+# The defaults are exactly those shown here.
+DefaultFont
+        Family                Roman
+        Series                Medium
+        Shape                 Up
+        Size                  Normal
+        Color                 None
+EndFont
+
+
+Style RuledCenter
+  Category		MainText
+  Margin		First_Dynamic
+  LatexType		Environment
+  LatexName		ruledcenter
+  NextNoIndent		1
+  Newline		1
+  ParSkip		0.4
+  ItemSep		0.2
+  TopSep		0.7
+  BottomSep		0.7
+  ParSep		0.3
+  Align			Center
+  AlignPossible		Block, Center
+  LabelType		No_Label
+End  
+
+Style Center
+  Category		MainText
+  Margin		First_Dynamic
+  LatexType		Environment
+  LatexName		center
+  NextNoIndent		1
+  Newline		1
+  ParSkip		0.4
+  ItemSep		0.2
+  TopSep		0.7
+  BottomSep		0.7
+  ParSep		0.3
+  Align			Center
+  AlignPossible		Block, Center
+  LabelType		No_Label
+End  
+
+Style ThesisInfo
+  Margin                First_Dynamic
+  LatexType             Command
+  Category              FrontMatter
+  NextNoIndent          1
+  InTitle               1
+  LabelSep              xx
+  ParIndent             MMM
+  ParSep                0.4
+  ItemSep		0.2
+  TopSep		0.7
+  BottomSep		0.7
+  ParSep		0.3
+  Align                 Block
+  AlignPossible         Block, Left, Center, Right
+  LabelType             Static
+  KeepEmpty		1
+
+
+  # standard font definition
+  Font
+    Shape 		Up
+    Size		Normal
+  EndFont
+
+  # label font definition
+  LabelFont
+    Shape		Up
+    Series		Bold
+  EndFont
+End
+
+Style InfoItems
+  CopyStyle             ThesisInfo
+  LatexName             informationitems
+  LabelString           "Thesis Information:"
+  RequiredArgs          6
+End
+
+Style Committee
+  CopyStyle             ThesisInfo
+  LatexName             committee
+  LabelString           "Thesis Committee Members:"
+  RequiredArgs          4
+End
+
+Style Month
+  CopyStyle             ThesisInfo
+  LatexName             thesismonth
+  LabelString           Month:
+End
+
+Style Year
+  CopyStyle             ThesisInfo
+  LatexName             thesisyear
+  LabelString           Year:
+End
+
+Style Degree
+  CopyStyle             ThesisInfo
+  LatexName             degree
+  LabelString           Degree:
+End
+
+Style Last_Degree
+  CopyStyle             ThesisInfo
+  LatexName             lastdegree
+  LabelString           "The Last Degree:"
+End
+
+Style Degree_Short
+  CopyStyle             ThesisInfo
+  LatexName             degreeshort
+  LabelString           Degree_Short:
+End
+
+Style CenteredTopCommand
+  Margin                First_Dynamic
+  LatexType             Command
+  NextNoIndent          1
+  LabelBottomsep        2
+  ParIndent             MMM
+  ParSep                0.4
+  ItemSep		0.2
+  TopSep		0.7
+  BottomSep		0.7
+  ParSep		0.3
+  Align                 Block
+  AlignPossible         Block, Left, Center, Right
+  LabelType             Centered_Top_Environment
+  KeepEmpty		1
+
+  # standard font definition
+  Font
+    Shape 		Up
+    Size		Normal
+  EndFont
+
+  # label font definition
+  LabelFont
+    Shape		Up
+    Series		Bold
+  EndFont
+End
+
+Style Copyright
+  CopyStyle             CenteredTopCommand
+  LabelType             Top_Environment
+  Category              FrontMatter
+  InTitle               1
+  LatexName             thesiscopyright
+  LabelString           Copyright
+  Align                 center
+End
+
+Style Dedication
+  CopyStyle             CenteredTopCommand
+  LabelType             Top_Environment
+  Category              FrontMatter
+  InTitle               1
+  LatexName             dedication
+  LabelString           Dedication
+  Align                 center
+End
+
+Style Acknowledgements
+	Margin                Static
+	LatexType             Environment
+	LatexName             acknowledgements
+	Category              FrontMatter
+	NextNoIndent          1
+	LeftMargin            MMM
+	RightMargin           MMM
+	ParIndent             MM
+	ItemSep               0
+	TopSep                0.7
+	BottomSep             0.7
+	ParSep                0
+	Align                 Block
+	LabelType             Centered_Top_Environment
+	LabelString           "Acknowledgements"
+	LabelBottomSep        0.5
+	Font
+	  Size                Small
+	EndFont
+	LabelFont
+	  Series              Bold
+	  Size                Large
+	EndFont
+	HTMLLabelFirst        1
+	HTMLForceCSS          1
+	HTMLStyle
+		div.abstract {
+			margin: 4ex;
+		}
+		div.abstract_item {
+			font-size: small;
+			padding-top: 1ex;
+		}
+		div.abstract_label {
+			font-weight: bold;
+		}
+	EndHTMLStyle
+End
+
+Style Abstract
+	Margin                Static
+	LatexType             Environment
+	LatexName             abstract
+	Category              FrontMatter
+#	NextNoIndent          1
+	LeftMargin            MMM
+	RightMargin           MMM
+	ParIndent             MM
+	ItemSep               0
+	TopSep                0.7
+	BottomSep             0.7
+	ParSep                0
+	Align                 Block
+	LabelType             Centered_Top_Environment
+	LabelString           "Abstract"
+	LabelBottomSep        0.5
+	Font
+	  Size                Small
+	EndFont
+	LabelFont
+	  Series              Bold
+	  Size                Large
+	EndFont
+	HTMLLabelFirst        1
+	HTMLForceCSS          1
+	HTMLStyle
+		div.abstract {
+			margin: 4ex;
+		}
+		div.abstract_item {
+			font-size: small;
+			padding-top: 1ex;
+		}
+		div.abstract_label {
+			font-weight: bold;
+		}
+	EndHTMLStyle
+End
+
+Style Department
+  CopyStyle             ThesisInfo
+  LatexName             department
+  LabelString           Department:
+End
+
+Style College
+  CopyStyle             ThesisInfo
+  LatexName             college
+  LabelString           College:
+End
+
+Style Supervisor
+  CopyStyle             ThesisInfo
+  LatexName             supervisor
+  LabelString           Supervisor:
+End
+
+Style Co-Supervisor
+  CopyStyle             ThesisInfo
+  LatexName             cosupervisor
+  LabelString           Co-Supervisor:
+End
+
+Style Committee_Member_B
+  CopyStyle             ThesisInfo
+  LatexName             committeeB
+  LabelString           Committee_Member_B:
+End
+
+Style Committee_Member_C
+  CopyStyle             ThesisInfo
+  LatexName             committeeC
+  LabelString           Committee_Member_C:
+End
+
+Style Committee_Member_D
+  CopyStyle             ThesisInfo
+  LatexName             committeeD
+  LabelString           Committee_Member_D:
+End
+
+Style Committee_Member_E
+  CopyStyle             ThesisInfo
+  LatexName             committeeE
+  LabelString           Committee_Member_E:
+End
+
+Style Start_First_Page
+  CopyStyle             ThesisInfo
+  LatexName             pageone
+  LabelString           Start_First_Page
+End
+
+
+Style Vita
+  CopyStyle             Abstract
+  Category              BackMatter
+  LatexName             vita
+  LabelString           VITA
+End
+
+NoStyle			ThesisInfo
