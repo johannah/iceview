@@ -1,0 +1,13 @@
+*.pyc
+*.pdf
+*.aux
+*.out
+*.toc
+*.DS_Store
+*.lof
+*.log
+*.lot
+#dirs
+*.ipynb_checkpoints*
+iceview.egg-info
+dist
