@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from subprocess import Popen, PIPE
 from multiprocessing import Pool, freeze_support, cpu_count
 import itertools
