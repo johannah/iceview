@@ -19,12 +19,12 @@ def get_best_matches(k1, k2, matches):
 
 def find_two_matches(base_img, img, base_k, img_k, base_d, img_d, min_matches=10):
     matches = match_descriptors(base_d, img_d, cross_check=True)
-    
+
     #   * src (image to be registered): pano2
     #   * dst (reference image): pano1, our middle frame registration target
     src = img_k[matches[:,1]][:,::-1]
     dst = base_k[matches[:,0]][:,::-1]
-    
+
     # if there are not enough matches, this fails
     # TODO: what type of transform:
     # AffineTransform

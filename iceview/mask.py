@@ -94,7 +94,6 @@ def remove_empty_edges(img):
         if sum(sums) > 0:
             first = sums.index(1)
             last = sums[::-1].index(1)
-
             num_ones = (len(sums)-first)-last
             out = [0]*first + [1]*num_ones + [0]*last
             return out
@@ -110,6 +109,31 @@ def remove_empty_edges(img):
         empty = get_mask(list(sums))
         img = np.compress(empty, img, axis=axes[ax-1])
     return img
+
+def remove_empty_alpha(img):
+    def get_mask(sums):
+        if sum(sums) > 0:
+            first = sums.index(1)
+            last = sums[::-1].index(1)
+            num_ones = (len(sums)-first)-last
+            out = [0]*first + [1]*num_ones + [0]*last
+            return out
+        else:
+            return sums
+
+    #for ax in range(len(img.shape)):
+    axes = [0, 1]
+    alpha = img[:,:,4]
+    plt.imshow(alpha)
+    plt.show()
+    for ax in range(2):
+        sums = np.sum(alpha, axis=axes[ax])
+        # make a mask of zero lines in image
+        sums= [bool(x) for x in sums]
+        empty = get_mask(list(sums))
+        img = np.compress(empty, img, axis=axes[ax-1])
+    return img
+
 
 def add_alpha(img, mask=None):
     """
@@ -201,8 +225,6 @@ def find_mask(base_img, img, model_robust):
     warp_order = 1
 
     output_shape, corner_min = find_output_shape(base_img, model_robust)
-    #print("output_shape", output_shape, corner_min)
-    #print(model_robust.scale, model_robust.translation, model_robust.rotation)
 
     # This in-plane offset is the only necessary transformation for the base image
     offset = SimilarityTransform(translation= -corner_min)
@@ -224,22 +246,22 @@ def find_mask(base_img, img, model_robust):
     img_warped[~img_mask] = 0
 
     #convert to rgb
-    #base_alpha = add_alpha(base_color, base_mask)
     img_alpha = np.dstack((img_color, img_mask))
     base_alpha = np.dstack((base_color, base_mask))
 
-    plt.imsave(config.tmp_base, base_alpha )
-    plt.imsave(config.tmp_img, img_alpha )
+    plt.imsave(config.tmp_base, base_alpha)
+    plt.imsave(config.tmp_img, img_alpha)
     cmd = [config.path_to_enblend, config.tmp_base, config.tmp_img,
            '-o', config.tmp_out]
 
     p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
     output, err = p.communicate(b"input data that is passed to subprocess' stdin")
     rc = p.returncode
+    print("AT ALPHA")
     # remove alpha channel
-
     if os.path.exists(config.tmp_out):
-        out = imread(config.tmp_out)[:,:,:3]
+        out = imread(config.tmp_out)
+        oute = remove_empty_alpha(out)
     else:
         print("couldnt find out image")
         print(rc, output, err)
@@ -250,11 +272,12 @@ def find_mask(base_img, img, model_robust):
         plt.imshow(img_alpha)
         plt.show()
         out = base_alpha[:,:,:3]
+    print("loading image of shape", out.shape)
     #if you don't have enblend, you can use one of these
     #merged_img = simple_merge(base_warped, img_warped, base_mask, img_mask)
     #merged_img = minimum_cost_merge(base_warped, img_warped, base_mask, img_mask)
     #merged_edges = remove_empty_edges(merged_img)
-    return out
+    return oute
 
 
 def find_alpha(base_img, img, model_robust):

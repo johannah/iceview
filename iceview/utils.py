@@ -45,7 +45,7 @@ def plot_compare(*images, **kwargs):
         ax[n].set_title(label)
         ax[n].axis('off')
     plt.tight_layout()
-    
+
 def plot_two_matches(img1, img2, k1, k2, matches):
     fig, ax = plt.subplots(nrows=1, ncols=2)
     plt.gray()
@@ -58,9 +58,9 @@ def plot_two_matches(img1, img2, k1, k2, matches):
     ax[1].axis('off')
     ax[1].scatter(k2[:, 1], k2[:, 0], facecolors='none', edgecolors='r')
     plt.show()
-    
+
     plt.show()
-    
+
 def plot_two_keypoints(img1, img2, k1, k2, s1=1, s2=1):
     fig, ax = plt.subplots(nrows=1, ncols=2)
     plt.gray()
@@ -86,8 +86,8 @@ def create_output_file(outpath, overwrite=False):
             print("Overwriting previous file: %s" %outpath)
         fp = open(outpath, 'w')
     fp.close()
-   
-    
+
+
 def write_output_file(outpath, img_name, img_dict, clear_features=True):
     """
     Write image features to an open json file
@@ -99,12 +99,12 @@ def write_output_file(outpath, img_name, img_dict, clear_features=True):
     """
     fp = open(outpath)
     jdata = json.load(fp)
-    
+
     # add a new img and its features to the dict
     if img_name not in jdata.keys():
         jdata[img_name] = img_dict
     else:
-        # if we were instructed to overrite the features, don't bother to check if 
+        # if we were instructed to overrite the features, don't bother to check if
         # the image is there
         if clear_features:
             jdata[img_name] = img_dict
@@ -118,10 +118,10 @@ def write_output_file(outpath, img_name, img_dict, clear_features=True):
                         jdata[img_name][feat] = img_dict[feat]
                 else:
                     jdata[img_name][feat] = img_dict[feat]
-                    
+
     json.dump(jdata, fp)
     fp.close()
-    
+
 def read_output_file(outpath):
     if os.path.exists(outpath):
         fp = open(outpath)
@@ -130,30 +130,10 @@ def read_output_file(outpath):
     else:
         create_output_file(outpath)
         return {}
-        
-
-                
-            
-        
-    
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Creating mosaic")
-    parser.add_argument('input_dir', default='raw', type=str, help="directory with images to be mosaiced")
-    parser.add_argument('output_dir', default='mosaic', help="directory to store mosaic/s")
 
- 
-    # parse command line
-    try:
-        args = parser.parse_args()
-    except :
-        parser.print_help()
-        sys.exit()
-        
-    if not os.path.exists(args.input_dir):
-        print("Error: input directory, %s does not exist" %args.input_dir)
-        sys.exit() 
-    
-    if not os.path.exists(args.output_dir):
-        os.mkdir(args.output_dir)
+
+
+
+
