@@ -2,7 +2,7 @@ import numpy as np
 from skimage.transform import warp, SimilarityTransform, AffineTransform, ProjectiveTransform
 from subprocess import Popen, PIPE
 import matplotlib.pylab as plt
-import config
+import iceview.config as config
 import os
 
 from skimage.data import imread
@@ -71,8 +71,8 @@ def generate_costs(diff_image, mask, vertical=True, gradient_cutoff=2.):
 
     return costs_arr
 
-def find_output_shape(base_img, model_robust):
-    r, c = base_img.shape[:2]
+def find_output_shape(base_img, model_robust, channel):
+    r, c = base_img.shape[:channel]
 
     corners = np.array([[0,0],
                         [0,r],
@@ -123,9 +123,10 @@ def remove_empty_alpha(img):
 
     #for ax in range(len(img.shape)):
     axes = [0, 1]
-    alpha = img[:,:,4]
-    plt.imshow(alpha)
-    plt.show()
+    print("img", img.shape)
+    # get alpha channel
+    alpha_chan = 3 # or 4?
+    alpha = img[:,:,alpha_chan]
     for ax in range(2):
         sums = np.sum(alpha, axis=axes[ax])
         # make a mask of zero lines in image
@@ -218,24 +219,22 @@ def minimum_cost_merge(base_warped, img_warped, base_mask, img_mask):
 
     return base_combined
 
-def find_mask(base_img, img, model_robust):
+def find_mask(base_img, img, model_robust, channel):
     # what type of interpolation
     # 0: nearest-neighbor
     # 1: bi-linear
     warp_order = 1
-
-    output_shape, corner_min = find_output_shape(base_img, model_robust)
-
+    output_shape, corner_min = find_output_shape(base_img, model_robust, channel)
     # This in-plane offset is the only necessary transformation for the base image
     offset = SimilarityTransform(translation= -corner_min)
-    base_warped = warp(base_img[:,:,2], offset.inverse, order=warp_order,
+    base_warped = warp(base_img[:,:,channel], offset.inverse, order=warp_order,
                       output_shape = output_shape, cval=-1)
     base_color = warp(base_img, offset.inverse, order=warp_order,
                       output_shape = output_shape, cval=-1)
     # warp image corners to new position in mosaic
     transform = (model_robust + offset).inverse
 
-    img_warped = warp(img[:,:,2], transform, order=warp_order,
+    img_warped = warp(img[:,:,channel], transform, order=warp_order,
                       output_shape=output_shape, cval=-1)
     img_color = warp(img, transform, order=warp_order,
                       output_shape=output_shape, cval=-1)
@@ -257,27 +256,18 @@ def find_mask(base_img, img, model_robust):
     p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
     output, err = p.communicate(b"input data that is passed to subprocess' stdin")
     rc = p.returncode
-    print("AT ALPHA")
     # remove alpha channel
     if os.path.exists(config.tmp_out):
         out = imread(config.tmp_out)
+        print('out', out.shape)
         oute = remove_empty_alpha(out)
-    else:
-        print("couldnt find out image")
-        print(rc, output, err)
-        plt.figure()
-        plt.imshow(base_alpha)
-        plt.figure()
-
-        plt.imshow(img_alpha)
-        plt.show()
-        out = base_alpha[:,:,:3]
+        print('oute',oute.shape)
     print("loading image of shape", out.shape)
     #if you don't have enblend, you can use one of these
     #merged_img = simple_merge(base_warped, img_warped, base_mask, img_mask)
     #merged_img = minimum_cost_merge(base_warped, img_warped, base_mask, img_mask)
     #merged_edges = remove_empty_edges(merged_img)
-    return oute
+    return oute[:,:,:3]
 
 
 def find_alpha(base_img, img, model_robust):
@@ -286,20 +276,20 @@ def find_alpha(base_img, img, model_robust):
     # 1: bi-linear
     warp_order = 1
 
-    output_shape, corner_min = find_output_shape(base_img, model_robust)
+    output_shape, corner_min = find_output_shape(base_img, model_robust, channel)
     #print("output_shape", output_shape, corner_min)
     #print(model_robust.scale, model_robust.translation, model_robust.rotation)
 
     # This in-plane offset is the only necessary transformation for the base image
     offset = SimilarityTransform(translation= -corner_min)
-    base_warped = warp(base_img[:,:,2], offset.inverse, order=warp_order,
+    base_warped = warp(base_img[:,:,channel], offset.inverse, order=warp_order,
                       output_shape = output_shape, cval=-1)
     base_color = warp(base_img, offset.inverse, order=warp_order,
                       output_shape = output_shape, cval=-1)
     # warp image corners to new position in mosaic
     transform = (model_robust + offset).inverse
 
-    #img_warped = warp(img[:,:,2], transform, order=warp_order,
+    #img_warped = warp(img[:,:,channel], transform, order=warp_order,
     #                  output_shape=output_shape, cval=-1)
     img_color = warp(img, transform, order=warp_order,
                       output_shape=output_shape, cval=-1)
@@ -323,18 +313,18 @@ def find_alpha(base_img, img, model_robust):
     #rc = p.returncode
     # remove alpha channel
 
-    #if os.path.exists(tmp_out):
-    #    out = imread(tmp_out)[:,:,:3]
-    #else:
-    #    print("couldnt find out image")
-    #    print(rc, output, err)
-    #    plt.figure()
-    #    plt.imshow(base_alpha)
-    #    plt.figure()#
+    if os.path.exists(tmp_out):
+        out = imread(tmp_out)[:,:,:3]
+    else:
+        print("couldnt find out image")
+        print(rc, output, err)
+        plt.figure()
+        plt.imshow(base_alpha)
+        plt.figure()#
 
-    #    plt.imshow(img_alpha)
-    #    plt.show()
-    #    out = base_alpha[:,:,:3]
+        plt.imshow(img_alpha)
+        plt.show()
+        out = base_alpha[:,:,:3]
     #if you don't have enblend, you can use one of these
     #merged_img = simple_merge(base_warped, img_warped, base_mask, img_mask)
     #merged_img = minimum_cost_merge(base_warped, img_warped, base_mask, img_mask)
