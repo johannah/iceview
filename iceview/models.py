@@ -20,8 +20,8 @@ def get_best_matches(k1, k2, matches):
 def find_two_matches(base_img, img, base_k, img_k, base_d, img_d, min_matches=10):
     matches = match_descriptors(base_d, img_d, cross_check=True)
 
-    #   * src (image to be registered): pano2
-    #   * dst (reference image): pano1, our middle frame registration target
+    #   * src (image to be registered):
+    #   * dst (reference image):
     src = img_k[matches[:,1]][:,::-1]
     dst = base_k[matches[:,0]][:,::-1]
 
@@ -31,10 +31,12 @@ def find_two_matches(base_img, img, base_k, img_k, base_d, img_d, min_matches=10
     # SimilarityTransform
     # ProjectiveTransform
     if matches.shape[0] > min_matches:
-        model_robust, inliers = ransac((src, dst), AffineTransform,
-                                   min_samples=4, residual_threshold=1,
-                                   max_trials=300)
-
+#        model_robust, inliers = ransac((src, dst), ProjectiveTransform,
+#                                   min_samples=10, residual_threshold=10,
+#                                   stop_sample_num=100, max_trials=300)
+#
+        model_robust, inliers = ransac((src, dst), ProjectiveTransform,
+                                       min_samples=10, residual_threshold=5)
         ransac_matches = matches[inliers]
         return model_robust, ransac_matches
     else:
