@@ -11,7 +11,13 @@ class ZernikeMoments:
         self.moments = zernike_moments(image, self.radius)
 
 def detect_and_extract(detector, img):
-    detector.detect_and_extract(img)
+    try:
+        detector.detect_and_extract(img)
+    except IndexError as e:
+        print("ERROR: %s" %e)
+        print("Perhaps not enought keypoints were found. Check image size.")
+        print("Exiting")
+        raise SystemExit
     keypoints = detector.keypoints
     descriptors = detector.descriptors
     return keypoints, descriptors

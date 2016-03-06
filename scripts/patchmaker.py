@@ -6,9 +6,10 @@ from skimage.io import imsave
 import argparse
 import sys
 import os
+from iceview import patches
 
 
-def patchmaker(img, imsize=(255,255), percent_overlap=20):
+def patchmaker(img, imsize=(100,100), percent_overlap=20):
     """
     Split an image into overlapping patches
 
@@ -60,14 +61,13 @@ if __name__ == '__main__':
     parser.add_argument('input_img', type=str, help="image to be split")
     parser.add_argument('output_dir', type=str, default='patches',
                         help="directory to store patches")
-    parser.add_argument('-s', '--size', dest='patch_size', default=(512, 512),
+    parser.add_argument('-s', '--size', dest='patch_size', default="512x512",
                         type=tuple, help='tuple in the form of (rows, columns) to designate size of the patches')
     parser.add_argument('-p', type=int, default=20,
                         help='percent overlap between patches as int',
                         dest='perc_overlap')
     parser.add_argument('-f', type=str, default=None, choices=['jpg', 'png'],
                         help='filetype to save patches as', dest='ftype')
-
     # parse command line
     try:
         args = parser.parse_args()
@@ -78,21 +78,27 @@ if __name__ == '__main__':
     # load input image if possible
     try:
         img = imread(args.input_img)
-    except Exception, e:
+    except Exception(e):
         print(e)
         sys.exit()
 
     # get patches
-    patches = patchmaker(img, args.patch_size, args.perc_overlap)
-
+    # my patchmaker is not working well - use dwf's instead
+    #patches = patchmaker(img, args.patch_size, args.perc_overlap)
+    psize = ''.join(args.patch_size).split('x')
+    patch_size = (int(psize[0]), int(psize[1]))
+    print("Using patchsize: ", patch_size)
+    print("IMG SHPAE", img.shape)
+    tpatches = patches.extract_patches(img, patch_size)
     if not os.path.exists(args.output_dir):
         os.mkdir(args.output_dir)
     base_img = os.path.split(args.input_img)[1].split('.')[-2]
     input_base = os.path.relpath(os.path.join(args.output_dir, base_img))
     if args.ftype is None:
         args.ftype = args.input_img.split('.')[-1]
-    for xx, patch in enumerate(patches):
+    for xx, patch in enumerate(tpatches):
         # write patch to file
+        print(patch.shape)
         patch_name = input_base + '_%03d.'%xx + args.ftype
         imsave(patch_name, patch)
 

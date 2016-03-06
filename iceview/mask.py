@@ -123,7 +123,6 @@ def remove_empty_alpha(img):
 
     #for ax in range(len(img.shape)):
     axes = [0, 1]
-    print("img", img.shape)
     # get alpha channel
     alpha_chan = 3 # or 4?
     alpha = img[:,:,alpha_chan]
@@ -219,7 +218,7 @@ def minimum_cost_merge(base_warped, img_warped, base_mask, img_mask):
 
     return base_combined
 
-def find_mask(base_img, img, model_robust, channel):
+def find_mask(base_name, base_img, img_name, img, model_robust, channel):
     # what type of interpolation
     # 0: nearest-neighbor
     # 1: bi-linear
@@ -243,32 +242,40 @@ def find_mask(base_img, img, model_robust, channel):
 
     img_mask = (img_warped != -1)
     img_warped[~img_mask] = 0
+    plt.imsave("img_mask.jpg", img_mask)
 
     #convert to rgb
     img_alpha = np.dstack((img_color, img_mask))
     base_alpha = np.dstack((base_color, base_mask))
 
-    plt.imsave(config.tmp_base, base_alpha)
-    plt.imsave(config.tmp_img, img_alpha)
-    cmd = [config.path_to_enblend, config.tmp_base, config.tmp_img,
-           '-o', config.tmp_out]
+    td = config.tmp_dir
+    tmp_base = os.path.join(td, 'tmp_' + '.'.join(base_name.split('.')[:-1]) + '.png')
+    tmp_img = os.path.join(td, 'tmp_' + '.'.join(img_name.split('.')[:-1]) + '.png')
+    tmp_out = os.path.join(td, 'tmp_out_' + '.'.join(base_name.split('.')[:-1]) + '.png')
+
+    plt.imsave(tmp_base, base_alpha)
+    plt.imsave(tmp_img, img_alpha)
+
+    cmd = ['enblend', tmp_base, tmp_img, '-o', tmp_out]
 
     p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
     output, err = p.communicate(b"input data that is passed to subprocess' stdin")
     rc = p.returncode
-    # remove alpha channel
-    if os.path.exists(config.tmp_out):
-        out = imread(config.tmp_out)
-        print('out', out.shape)
-        oute = remove_empty_alpha(out)
-        print('oute',oute.shape)
-    print("loading image of shape", out.shape)
     #if you don't have enblend, you can use one of these
     #merged_img = simple_merge(base_warped, img_warped, base_mask, img_mask)
     #merged_img = minimum_cost_merge(base_warped, img_warped, base_mask, img_mask)
     #merged_edges = remove_empty_edges(merged_img)
-    return oute[:,:,:3]
-
+    # remove alpha channel
+    if os.path.exists(tmp_out):
+        out = imread(tmp_out)
+        oute = remove_empty_alpha(out)
+        os.remove(tmp_base)
+        os.remove(tmp_img)
+        os.remove(tmp_out)
+        return oute[:,:,:3]
+    else:
+        print("Could not find out", tmp_out, rc)
+        raise Exception("failed cmd %s" %cmd)
 
 def find_alpha(base_img, img, model_robust):
     # what type of interpolation
@@ -300,7 +307,7 @@ def find_alpha(base_img, img, model_robust):
     #img_warped[~img_mask] = 0
 
     #convert to rgb
-    #base_alpha = add_alpha(base_color, base_mask)
+    base_alpha = add_alpha(base_color, base_mask)
     img_alpha = np.dstack((img_color, img_mask))
     #base_alpha = np.dstack((base_color, base_mask))
 

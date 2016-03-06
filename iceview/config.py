@@ -1,5 +1,2 @@
-path_to_enblend = '/Users/jhansen/Applications/enblend-enfuse-4.0-mac/enblend'
-tmp_out = '/tmp/out.png'
-tmp_base = '/tmp/base.png'
-tmp_img = '/tmp/img.png'
-data_dir = '../data/jpg/'
+# directory to use as scratch for blending images in emblend
+tmp_dir = '/tmp/'

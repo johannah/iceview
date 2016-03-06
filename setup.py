@@ -1,7 +1,7 @@
 import os
-from setuptools import setup
+import setuptools
 
-setup(
+setuptools.setup(
     name='iceview',
     version='0.0.1',
     package_data={"": ['*.jpg', '*.png', '*.json', '*.txt']},
@@ -11,6 +11,7 @@ setup(
     long_description=open(os.path.join(os.path.dirname(__file__),
                                        'README.md')).read(),
     license='BSD 3-clause',
+    packages=setuptools.find_packages(),
     url='http://github.com/johannah/iceview',
     scripts=['scripts/build_mosaic.py', 'scripts/patchmaker.py'],
     install_requires=['numpy',
