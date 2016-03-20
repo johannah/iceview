@@ -69,132 +69,174 @@ All rights reserved. }
 teachers who have guided me throughout this process.}}
 
 
-\title{\textbf{Mosaiking Images with Non-Stationary Features}}
+\title{\textbf{IceView: A System for Mosaiking Sea Ice using Zernike Shape Descriptors}}
 
 
 \author{Johanna Hansen}
 \maketitle
 \begin{acknowledgements}
 
-I would also like to thank the UTSA Graduate School for reviewing
-the outcome of this template document and correction of formatting
-errors. 
+Thanks!
 
 \end{acknowledgements}
 
 \begin{abstract}
+Unmanned Aerial Vehicles are providing revolutionary inexpensive, 
+real-time access to the terrain around us. One application where this technology 
+is especially valuable is for ships navigating in ice laden waters. For these ships, 
+satellites are often too slow to provide up-to-date information and helicopters 
+are cost prohibitive. 
 
-Unmanned Aerial Vehicles (UAVs) are an emerging low-cost platform for 
-performing high-resolution aerial surveys. Low-altitude UAVs collect many 
-high resolution images that represent only a small footprint of the scene. 
-In order for this data to provide a useful overview of humans, overlapping images 
-need to be aligned and stitched together to provide an overview of a scene. 
-In this thesis, we look at data collected over sea ice with UAVs. Traditional 
-stitching algorithms tend to fail when faced with sea ice scenes for two reasons; 
-ice itself typically has very few features from which to match to overlapping 
-images and water is  nonstationary, making it impossible to match with 
-overlapping images that are taken at a different point in time. 
-
-In this thesis we first detect and mask non-stationary features from keypoint 
-consideration. We then investigate and compare several keypoint detection 
-schemes. 
-
-Functionality is tested on data collected by several UAVs in different 
-conditions. 
+Traditional image mosaiking algorithms tend to fail when faced with sea ice 
+scenes for two reasons; ice itself typically has very few features from which 
+to match to overlapping images and water pixels are dynamic in nature  
+making it impossible to match with overlapping images that are taken at different 
+points in time. The Iceview system attempts to solve these obstacles by 
+utilizing multi-scale Harris point detector coupled with a Zernike feature 
+descriptor.  This approach assumes that the extended scene 
+is planar and determines homographies for each image by topology estimation 
+through feature-based pairwise image registation across all images using a 
+multi-scale Harris point detector with a feature descriptor. The approach is 
+demonstrated using real data obtained on an Artic Expedition. 
 
 \end{abstract}
 \pageone{}
 
 \chapter{Introduction}
+
+\section{Motivation}
+
 Expeditions into the worlds cold oceans requires expert navigation and 
-real-time knowledge of the conditions. 
-This region of the earth 
+real-time knowledge of the conditions. This region of the earth 
 is both interesting from a scientific perspective because it has had little 
 exploration and from a commercial aspect because of increasing 
 accessibility to Artic and Antartic in recent years. 
 However, sea ice presents a substantial challenge 
-that requires constant monitoring. Helicopters can be used to perform 
-human led scouting expeditions from vessels locked in sea ice regions, 
-however, these tools are costly to operate. Unmanned Aerial Vehicles 
-(AUVs) equipped with high
-resolution digital cameras offer a low-cost alternitive helicopters. An automated 
-aerial system for ice monitoring could provide substantial cost savings both in 
-engineering and equipment time.  
+that requires constant monitoring. Historically, ships working in icey conditions 
+have relied on human scouts, helicopters, and/or satellite imagery to monitor 
+ice conditions, but these are suboptimal solutions. Human watches are obviously 
+restricted by visibility in all but perfect conditions.
+Manned aircraft such as helicopters are often prohibitively expensive and require 
+expert pilots and precious deck space. Satellite imagery provides useful overviews, 
+but is low-resolution, prone to occlusion by cloudcover or atmospheric conditions, 
+is updated at a low frequency, and may not always be available. 
 
-Although UAVs are able to capture imagery of the terrain, humans have a 
-difficult time organizing this information and benefit from an overview image.
-By registering many images into a single mosaic, 
-we can create large scenes of high resolution.
-Image registration involves overlaying multiple images from the same scene 
-that were captured from a subset of different viewpoints, times, and/or cameras.
+Unmanned Aerial Vehicles (UAVs) equipped with high
+resolution digital cameras offer a low-cost, real-time alternitive to manned aircraft. 
+They require little expertise to operate and little deck space. However, because 
+there is no human observer of the terrain, the data collected from the must 
+be processed and analyzed in a way that is useful for decision makers. 
+Although UAVs can provide images with high resolution, each image only covers a 
+small part of the interesting area.
+ This means that a single flight can result in thousands 
+of images that must be organized into a human-readable format. 
+A process called image mosaiking must be performed to merge overlapping images 
+of the terrain into a single high resolution image that is easy to comprehend and 
+integrate into existing workflows. 
+By registering the many images into a single mosaic, 
+we can create large scenes of high resolution that are easy to integrate into 
+existing Geographic Information Systems (GIS).
+This map can be combined with other data sources such as weather, 
+ship position, and current information to provide a useful overview of sea conditions.
 
 Algorithms for aligning and stitching images into photomosaics have been 
 widely studied and commercialized, however, traditional
 methods tend to fail when tasked with stitching sea ice imagery.
 Both the ice and sea that are present in this type of imagery present challenges 
-for tradational mosaiking approaches. The ice itself is near featureless. Bodies 
-of water are generally useless for feature matching because of its dynamic 
+for tradational mosaiking approaches. The ice itself is often nearly featureless, 
+making it difficult for feature-based matching schemes to work robustly. 
+Bodies of water are generally useless for feature matching because of its dynamic 
 properties and meaningless features over time. 
-
-This work attempts to build a standard system in which to mosaic images
-with non-stationary objects and near featureless terrain, particularly sea ice.  
-
-\section{Motivation}
-Although UAVs can provide images with high resolution, each image has a 
-limited field of view (FOV). To make the imagery human readable, 
-we need to combine all of the sequential images together into a larger image 
-that covers the surveyed area. Because the distance from the UAV's camera is
-much greater than the motion of the camera between views, a homographic model
-can be use to describe the relationship between neighboring images 
-\cite{Semple, Ma}. 
-
-Assumptions made by traditional approaches that cause the algorithms to fail:
-
+This report approaches these problems by developing a pipeline for working 
+with a seaice dataset. 
 
 
 \section{Background}
+
 Aerial photography has been used to gain a greater viewpoint of the world and 
 has been used extensively reconassance, agriculture, and science. 
-Historically, images were captured on air balloons and airplanes. 
+Historically, images were captured on air balloons and airplanes and then printed 
+and aligned by hand. In modern times, digital cameras and smartphones are capable of 
+automatically stitching panoramas on a small platform. 
+This panorama is a rotational motion solved by a cylindrical or spherical surface model.
+To produce a UAV image mosaic, however, the rotional motion about the camera axis 
+is replaced by a translational motion model that changes point of view.
+Mosaics with extended field of view benefit 
+from the relatively large and equal distance to the scene in each image. 
 
-A limitation with a static map in relation to ice management is the lack of 
-temporal information in terms of ice drift. 
-Could also make rough alignment using GPS data - fast , but quality suffers. 
-Common features between consecutive images to infer motion between images. 
-REquires overlap between images  and higher computing requirments, but produces
-accurate results. May not be able to register images if the overlap area is too 
-or if the scene is featureless. 
+Images can be aligned quickly with Global Positioning System (GPS) and 
+Intertial Measurement Unit (IMU) data, however, these measurements are not 
+accurate enough for a visually appealling image. In addition, accurate measurements 
+would require more expensive sensors. 
+Moreover, GPS is not always a available or reliable at extreme latitudes where 
+ships are often working in sea ice.
+Instead, most approaches for mosaiking UAV images is to extract common 
+features between consecutive images to infer the motion between images.
+This approach requires some degree of overlap between images and significantly 
+higher computing requirments than a simple alignment based on sensors, but it 
+produces much more accurate results. 
+
+There exist many open-source and proprietary packages for developing mosaics 
+from overlapping imagery such as Autopano or PhotoScan. However, experminents 
+indicated that these packages were not reliable for developing mosaics with our 
+data. Stitching and warping errors typically come from the accuracy of feature 
+matching or the projection of object height. 
+
+TODO: overview of air, underwater mosaic
+
+\section{Thesis Overview}
+
+The main problem is to determine overlapping regions between two 
+neighboring images and determining the relative transformation
+ between them in a process called image registration. 
+ The two images are then aligned and merged or stitched together to form a larger image called a mosaic. 
+
+The transformation between any two overlapping images can be described
+linearly decomposed in to translation, rotation, and scaling components.
+
+Translation, rotation, and scaling should be recovered at the same time.
+Image stitching covers the method of combining many individual images into 
+one mosaic. Determine how two images are aligned to each other. Blending t
+Image registration strategies find correspondences between two images. 
+Most methods utilize intersting points, such as regions of color, edges, 
+contours, or distinctive points. These features are then searched for in 
+nearby images. If distinctive features are detected, they are matched to 
+determine correspondences. UAV images are taken at different points of view 
+and at different times. 
+
+Major errors come from the object projection onto the image. If the terrain to 
+be surveyed is almost flat, the UAV images can be directly stitched. For these
+near flat surfaces, the affine transformation can be directly used to translate 
+image coordinates. \cite{Wang}
+
+
+For ice imagery, we can take advantage of the 
+large distance to the scene and the generally planar terrain surface 
+to adopt a model which assumes equal distance to each object in the image.
+This thesis demonstrates large-area 
+mosaicing of sea-ice, addressing issues of image registration 
+in a global framework. Relate images using a multi-scale feature detector with matching based on 
+descriptors that provide invariance to rotation, scaling, and affine changes in 
+intensity. This approach is purely image based and does not neccessitate the use 
+of navigation data.
 
 A set of features is computed for every image
 feature tracking may fail if there is insufficient matches - low overlap or featureless.
 Considerable effort has been invested in improving the robustness of 
 image mosaic techniques to changes in sensors, illumination, and zoom.  
-Lower resolution -to identify crossover points
 
-SIFT provide a fully automatic construction 
-of mosaic that is insensitive to ordering, orientation, scale, and illumination 
-of the images. 
+Image registration involves overlaying multiple images from the same scene 
+that were captured from a subset of different viewpoints, times, and/or cameras.
+This work attempts to build a standard system in which to mosaic images
+with non-stationary objects and near featureless terrain, particularly sea ice.  
 
-Underwater ....
+Because the distance from the UAV's camera is
+much greater than the motion of the camera between views, a homographic model
+can be use to describe the relationship between neighboring images 
+\cite{Semple, Ma}. 
 
-
-In more recent history, most digital cameras are capable of producing an 
-automatic panorama on a small electronic platform. 
-Traditional mosaics are built from images taken from the same point of view, 
-a panorama. Such mosaics do not change Point of view, but do increase the 
-Field of view of the camera. Mosaics with extended field of view benefit 
-from the relatively large and equal distance to the scene in each image. 
-This is rotational motion solved by a cylindrical or spherical surface model.
-The UAV image mosaic, however, the rorational motion about the camera axis 
-is replaced by a translational motion model that changes point point of view.
-In the case of sea ice, the observed scene is planar, taking advantage of the 
-large distance to the scene and equal to each object in the image.
-Structural methods expect a repeating primitive, which is unexpected in sea-ice
-
-Most modern stitching algorithms utilize feature based correspondence and 
-consist of the following steps: 
 \begin{enumerate}
-\item{Identify features or keypoints from each image}
+\item{Identify features or keypoints from ice regions}
 \item{Determine matching features between images}
 \item{Estimate homography between images that contain the same keypoints}
 \item{Warp images according to estimated homographies so that their overlapping 
@@ -206,155 +248,51 @@ For the iceview problem, we add an additional preliminary step to detect
 nonstationary features and remove them from the pixels that are considered for 
 feature detection. 
 
-\section{Thesis Overview}
-This thesis introduces our efforts to create high quality mosaics given a sparse
-sampling of either a static or dynamic environment
-The focus of this thesis is on 2D mosaicing....
-No practical, robust, and repeatable way of mosaicing images with non-stationary 
-features in an and unstrctured fashion. This thesis demonstrates large-area 
-mosaicing of sea-ice, addressing issues of image registration in a global framework. 
+TODO: talk about segmentation of water/ice
 
-nearly planar scene
-
-Relate images using a multi-scale feature detector with matching based on 
-descriptors that provide invariance to rotation, scaling, and affine changes in 
-intensity. This approach is purely image based and does not neccessitate the use 
-of navigation data.  This approach breaks the problem into several distinct 
-phases: 
-%\begin{list}
-%    \item{isolation of stationary features}
-%    \item{feature extraction from stationary regions}
-%    \item{topology estimation} 
-%    \item{global registration}
-%\end{list}
 \chapter{Methods}
 Unknown motion between images
 Attitude and scale changes betweeen images with UAV
 
-\section{Image Segmentation}
-
-Image stitching techniques utilize features that are consistent amongst 
-overlapping images. Overlapping images captured from a UAV of the same scene are 
-captured at different points in time. If objects from the scene change between 
-the times in which the image is taken, the matching algorithm can fail. At best 
-this typically results in blurring of the scene which changes, at worst, this 
-can cause the overlapping images to not be matched at all. 
- field of view of the camera includes mostly dynamic regions,
-There are many methods for mosaicing a scene with dynamics in the static mosaic. 
-Some approaches eliminate all dynamic information in the scene, while others 
-attempt to encapsulate the changes between images by overlaying the movement 
-into the mosaic. For the purposes of the iceview system, the dynamic movement 
-of waves is not interesting information, so we blur the movement in this section. 
-We can exclude water from the feature extraction by first segmenting
-the image into ice or non-ice pixels. 
-
-Segmentation: 
-Thresholding gray level occurance
-gabor filter - texture
-glcp - statistical
-mrf
-
-The histograms for sea ice images are generally bimodal, so a mixture
-model can be used to approximate such a histogram and obtain
-the individual components. 
 
 \section{Feature Extraction}
 
-Image registration often use \emph{keypoints} or 
-\emph{features} from an image and a 
-\emph{descriptor} which contains a description of the neighborhood of 
-pixels around a keypoint. 
+Image registration often use \emph{keypoints} or \emph{features} from an 
+image and a \emph{descriptor} which contains a description of the neighborhood of 
+pixels around a keypoint.  
+Descriptors are used to pre-process images in order to make their 
+features more invariant to scale, rotation, and translation transformations. 
 Choosing an appropriate feature detection and description algorithm is a 
 tradeoff between feature uniqueness, robustness, lighting, and 
 computation time. 
 
-\subsection{SIFT}
+
+There exists a wide variety of feature extraction algorithms.
 One of the most well known and often used keypoint descriptors is Scale
  Invariant Feature Transform  or SIFT \cite{SIFT} which detects keypoints 
- based on Difference of Gaussians (DOG). OLD - Large computational burden. 
- 
- A successor to SIFT, Speeded-Up Robust Features (SURF) is a popular algorithm that yields similar feature performance to SIFT, but with 
- faster computation time \cite{SURF}. SURF keypoints are invariant to 
- rotation and scale changes \cite{SURF}.
-
-Binary keypoint descriptors show similar performance to SIFT-like 
-descriptors, but with lower computational costs. Each bit in a binary descriptor is independent and Hamming distance can be used as a similarity 
-measure instad of Euclidean distance \cite{Bekele}. 
-
-
-A wide variety of scale and rotation invariant feature extraction algorithms 
-are available for detecting correspondences between images. ... SFIT seems best
-SIFT features are computed by estimating a local orientation and using a 
-histogram of the local gradient orientations. Gradients are copied into 
-different orientation planes such that blurred, re-sampled versions of the images 
-are used as features. This provides the descriptor with some insensitivity to 
-small feature localization errors and geometric distortions. 
-
-Schmid - survey of feature
-Invariant features - 
+ based on Difference of Gaussians (DOG). 
+ A successor to SIFT, Speeded-Up Robust Features (SURF) is a popular 
+ algorithm that yields similar feature performance to SIFT, but with 
+ faster computation time \cite{SURF}. 
 
 Corner like features -Hessian and eigenvalue.
 Harris corners are not invariant to scaling, and cross correlation
 is not invariant to translation. 
-- 2-D projective transformation. Can be computed without any knowledge of 
-the internal camera calibration parameters.  No need to know focal length, 
-optical center, or relative camera motion between frames. 
-Manually identify four or more corresponding points between two views, which
- is enough information to solve for eight unknowns in the 2-D projective
- transformation. 
-Image stitching covers the method of combining many individual images into 
-one mosaic. Determine how two images are aligned to each other. Blending t
-Image registration strategies find correspondences between two images. 
-Most methods utilize intersting points, such as regions of color, edges, 
-contours, or distinctive points. These features are then searched for in 
-nearby images. If distinctive features are detected, they are matched to 
-determine correspondences. UAV images are taken at different points of view 
-and at different times. Features can be extracted.... discrete features of 
+
+Features can be extracted.... discrete features of 
 interest as keypoints that are identified in different viewing conditions. 
 The neighborhood around the keypoints is represented by a description vector. 
 Theoretically, only four corresponding points are required to determine 
 homography between two images. 
 
-Different type of feature extraction....
-low-overlap
-depth-reconstruction
-3-D is more difficult to automate reliably. 
-
-Descriptors are used to pre-process images in order to make their features more 
-invariant to scale, rotation, and translation transformations. 
-terrain is planar, optical axis is perpendicular, narrow field of view
-\subsection{ORB}
-\cite{ORB}
-\subsection{Zernike Moments}
-rotational invariant and can be made to be scale and translational invariant. 
-Magnitude of zernike moments are rotationally invariant. Used by \cite{pizarro}
-
-\section{Feature Matching}
- Ratio test? - ratio of the distance of the best match to the second best
- match - if this ratio is greater than 0.9 both of the matches are ignored. 
- If not, the best match is kept. This eliminates false matches. 
-
- Need to determine if two images overlap - correspondence problem before 
- solving for the transform that relates an image pair. Traditional implementations 
- use correlation. 
-Simplist way is to compare all features in one images against all features 
-in the other, however, this is quadratic in the expected number of features. 
-Direct methods, are effective with high image overlap 
-- assume mostly translational 
-- break down with high rotation and low overlap. 
-Images with significant rotation, scalling, affine transforms can be registered 
-using frequency based techniques. 
-It is only necessary to match each image to a small number of neighboring 
-images. 
 Features are used to determine which features come from corresponding locations 
 in the images. Local motion areound each feature point is expected to be mostly 
 translational. 
+It is only necessary to match each image to a small number of neighboring 
+images. 
 
-\subsection{Evaluation of Descriptors}
-Recall and precision
-can be used to compare performance of descriptors demonstrated \cite{Bekele}
-and \cite{Schmid}. \cite{Schmid} concluded that SIFT-like descriptors yield
-the best performance on the Oxford dataset. \cite{Heinly} compared SIFT, SURF, and ORB on the Oxford data set. Heinly concluded that the descriptors should be adapted to the data.
+Recall and precision can be used to compare performance of descriptors 
+demonstrated.
 
 Corner detectors are fast to find 
 and describe, but more effort must be spent to match and reject incorrect 
@@ -364,6 +302,27 @@ entirely be and iceberg.
 Evaluation of keypoint detectors. Bekele et al provides an evaluation 
 of keypoint detectors in \cite{Bekele} in which escriptors are considered 
 from BRIEF, ORB, BRISK, and FREAK. 
+
+rotational invariant and can be made to be scale and translational invariant. 
+Magnitude of zernike moments are rotationally invariant. Used by \cite{pizarro}
+Zernike momemnt are a set of orthogonal polynomials that offer a complete 
+solution to recover rotational and scaling parameters. 
+
+
+Zernike Polynomials 
+complex polynomials that are orthogonal over the unit circle $x^2 + y^2 = 1$. 
+They can be expressed in radial and angular components. 
+
+$
+\label{eq:zernike polynomial}
+V_{nm}(x,y) = V_{nm}(\rho, \theta) = R_{nm}(\rho)\emph{e}^{im\theta}
+$
+\emph{n} is a positive integer
+\emph{m} is an integer such that $n-|m|$ is even and $|m|<=n$
+$\rho$ is the magnitude of the vector from the origin to the point $(x,y)=x^2+y^2$
+$\theta$ is the angle between the vector and the x-axis in a counter-clockwise direction
+
+
 
 Two images contain brightness changes, viewpoint, rotation, scale.
 To evaluate the descriptors on this dataset, four parameters were 
@@ -387,34 +346,41 @@ Average number of best matches - multiplying the average number of
 keypoints with the percentage of the accuracy. 
 
 \section{Perspective Tranformation} 
-Traditional matching algorithms recover motion models 
-
 The distance from the camera to the target object is much greater than the 
 motion between the camera views, so a homographic model can be used to describe. 
-Once a match is determined between two images, each pixel from the source image 
-must be mapped to a pixel coordinate in the destination image. An image 
-transformation can be described by ... type of transformation matrix.
- To determine homography matrix from the features, direct or approximate methods. 
- Direct (direct linear tranform) .... 
- Require more feature matches than the minimum four. But each keypoint has 
- uncertanty. For robust homography, we find the homography that minimizes error.
-\section{Homography Covariance Estimation}
-The covariance matrix of the homography is used to measure accuracy. 
-RANdom Sample Consensus (RANSAC) was used to determine homography 
-between two images.  Find the best projective relationship between the two 
-image keypoints by computating a fundamental matrix from random sample 
-points. Find the set of final best matches.
-\section{Blending}
-When merging two images into one image, blending of the pixel values should 
-be applied to produce a more pleasing result. This approach utilizes the open 
-source tool, enblend, that uses a multi-resolution spline to blend images 
-together. Enblend combines the images across a transition zone that is proportional 
-to the spatial frequency of the region. Homogenous regions like an ice sheet 
-have low spatial and are combined across a wide region. Strong color changes, 
-like a seal lying on an ice sheet, show high spatial frequency and are fused 
-over a small area. 
+ 2-D projective transformation. Can be computed without any knowledge of 
+the internal camera calibration parameters.  No need to know focal length, 
+optical center, or relative camera motion between frames. 
+Manually identify four or more corresponding points between two views, which
+ is enough information to solve for eight unknowns in the 2-D projective
+ transformation. 
 
-\section{Global Registration}
+An image 
+transformation can be described by ... type of transformation matrix.
+\ref{eq:General tranformation equation} where 
+\emph{$s_i$} indicates scaling, 
+\emph{$r_i$} rotation, and \emph{$t_i$} dictactes translation in the i-th direction. 
+Thus, the problem can be reduced to recovering each component independently.
+
+
+ $$
+ \label{eq:General transformation equation}
+ M =
+ \begin{bmatrix}
+ s_xr_{11}&s_xr_{12}&t_x \\ s_yr_{21}&s_yr_{22}&t_y \\ 0&0&1\\
+ \end{bmatrix}
+ $$
+
+TODO: Discuss the history of each of the problems and show tests
+Traditional matching algorithms recover motion models 
+
+Once a match is determined between two images, each pixel from the source image 
+must be mapped to a pixel coordinate in the destination image. 
+
+
+ Ratio test? - ratio of the distance of the best match to the second best
+ match - if this ratio is greater than 0.9 both of the matches are ignored. 
+ If not, the best match is kept. This eliminates false matches. 
 add new images to mosaic one at a time, aligning the most recent image with the 
 previous ones already in the collection. A better alternative is to simultaneously 
 align all the images together using a least squares framework to distribute 
@@ -432,8 +398,23 @@ temporal sequence.
 extract features and put into indexing structure
 compare feature descriptors to find best match
 ransac find set of inliers using pair of matches to hypothesize a similary
-which actually correspond? difficult problem, - can perform direct pixel based 
-comparison - but will fail if moving objects
+
+The covariance matrix of the homography is used to measure accuracy. 
+RANdom Sample Consensus (RANSAC) was used to determine homography 
+between two images.  Find the best projective relationship between the two 
+image keypoints by computating a fundamental matrix from random sample 
+points. Find the set of final best matches.
+
+\section{Blending}
+When merging two images into one image, blending of the pixel values should 
+be applied to produce a more pleasing result. This approach utilizes the open 
+source tool, enblend, that uses a multi-resolution spline to blend images 
+together. Enblend combines the images across a transition zone that is proportional 
+to the spatial frequency of the region. Homogenous regions like an ice sheet 
+have low spatial and are combined across a wide region. Strong color changes, 
+like a seal lying on an ice sheet, show high spatial frequency and are fused 
+over a small area. 
+
 \section{Assumptions and Approach}
 Assume that images have been acquired in a temporal sequence. Although this is
 not required, it will reduce convergence time. Navigation data
@@ -445,12 +426,12 @@ is not required.
 \subsection{Image Patches}
 
 \chapter{Results}
+\section{Error Metrics} 
 Evaluation of quality - geospatial correctness of ground areas
 standard measurments, cross correlation between images - 
 speed ...
 keypoint matching efficiency - 
-W
-\section{Error Metrics} 
+
 
 \section{Validation - Synthetic Mosaic}
 A synthetic survey is generated from a single image by dividing the image into
@@ -825,3 +806,29 @@ There can be more paragraphs.\end{vita}
 %
 %These is another appendix.
 
+%\section{Image Segmentation}
+%
+%Image stitching techniques utilize features that are consistent amongst 
+%overlapping images. Overlapping images captured from a UAV of the same scene are 
+%captured at different points in time. If objects from the scene change between 
+%the times in which the image is taken, the matching algorithm can fail. At best 
+%this typically results in blurring of the scene which changes, at worst, this 
+%can cause the overlapping images to not be matched at all. 
+% field of view of the camera includes mostly dynamic regions,
+%There are many methods for mosaicing a scene with dynamics in the static mosaic. 
+%Some approaches eliminate all dynamic information in the scene, while others 
+%attempt to encapsulate the changes between images by overlaying the movement 
+%into the mosaic. For the purposes of the iceview system, the dynamic movement 
+%of waves is not interesting information, so we blur the movement in this section. 
+%We can exclude water from the feature extraction by first segmenting
+%the image into ice or non-ice pixels. 
+%
+%Segmentation: 
+%Thresholding gray level occurance
+%gabor filter - texture
+%glcp - statistical
+%mrf
+%
+%The histograms for sea ice images are generally bimodal, so a mixture
+%model can be used to approximate such a histogram and obtain
+%the individual components. 
