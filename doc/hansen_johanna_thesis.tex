@@ -15,6 +15,10 @@
  breaklinks=false,pdfborder={0 0 1},backref=false,colorlinks=false]
  {hyperref}
 
+%graphicx is not part of included utsa thesis
+\usepackage{graphicx}
+%\usepackage{subcaption}
+\graphicspath{{./figures/}}
 \makeatletter
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
@@ -69,7 +73,7 @@ All rights reserved. }
 teachers who have guided me throughout this process.}}
 
 
-\title{\textbf{IceView: A System for mosaicing Sea Ice using Zernike Shape Descriptors}}
+\title{\textbf{IceView: A System for Mosaicing Sea Ice in Changing Environments}}
 
 
 \author{Johanna Hansen}
@@ -153,12 +157,20 @@ with a seaice dataset.
 
 
 \section{Background}
-
+ [8], [20] [6]
+[5]
 Aerial photography has been used to gain a greater viewpoint of the world and 
 has been used extensively reconassance, agriculture, and science. 
 Historically, images were captured on air balloons and airplanes and then printed 
 and aligned by hand. In modern times, digital cameras and smartphones are capable of 
 automatically stitching panoramas on a small platform. 
+There exists a large body of work for creating mosaics from digital photographs, 
+beginning perhaps in 1975 with Milgram \cite{computermosaic, milgram2, }.
+Early work in digital mosaicing generally fell into two camps, 
+direct and feature based. Direct methods attempt to use correlations 
+over the entire image to find overlapping regions in images, while feature based methods extract interesting regions (such as lines or edges) and measures the similarity of these regions to determine overlaps. 
+
+In 2005, Brown et. al. defined a rotationally invariant, multi-scale, feature descriptor to match overlapping images \cite{multiscalepatch}.  
 This panorama is a rotational motion solved by a cylindrical or spherical surface model.
 To produce a UAV image mosaic, however, the rotional motion about the camera axis 
 is replaced by a translational motion model that changes point of view.
@@ -171,6 +183,10 @@ accurate enough for a visually appealling image. In addition, accurate measureme
 would require more expensive sensors. 
 Moreover, GPS is not always a available or reliable at extreme latitudes where 
 ships are often working in sea ice.
+Prasad, et. al investigated the problem of developing mosaics in quadcopter surveys 
+with gaps in features using imu information to improve convergence time.
+The approach was demonstrated on building walls with only small regions (paintings) 
+that provided keypoints\cite{mosaicimu} 
 Instead, most approaches for mosaicing UAV images is to extract common 
 features between consecutive images to infer the motion between images.
 This approach requires some degree of overlap between images and significantly 
@@ -179,11 +195,21 @@ produces much more accurate results.
 
 There exist many open-source and proprietary packages for developing mosaics 
 from overlapping imagery such as Autopano or PhotoScan \cite{Autopano, PhotoScan}. 
+Autopano uses SIFT
 However, our experminents indicate that these packages were not 
 reliable for developing mosaics with sea ice 
-data. TODO: why 
-Stitching and warping errors typically come from the accuracy of feature 
-matching or the projection of object height. 
+data.  
+The large volume of images with poor features that results from a typical  UAV sea-
+ice survey seemed to incapacitate the algorithm. When the surveys were divided 
+into geographic batches, 
+stitching and warping errors typically resulted from the accuracy of feature 
+matching or the projection of object height. We assume that the scene lies on a 
+planar surface, and utilize knowledge about the structure of the survey to reduce 
+the search space.
+Traditional image mosaicing approaches work by finding an intersection of 
+feature space between overlapping images. However, these methods fail when there
+are gaps in the survey due to featureless spaces (such as solid ice or waves) 
+in the images to be stitched. 
 
 Flaten \cite{Norway} developed a system for navigating a quadcopter over sea ice using 
 an infared camera. His approach compared SIFT, SURF, and ORB detectors and found 
@@ -243,21 +269,50 @@ The histograms for sea ice images are generally bimodal
 
 \chapter{Feature Detection and Matching}
 
-\section{Relating Images}
 The main problem in generating a map from ice imagery is finding overlapping regions between neighboring images and pasting them together 
 with the correct rotation, translation, and scaling between images. 
 Our approach utilizes 
 the knowledge that the UAV captured images in a spatial order as it was flying, and we attempt to match images with neighboring timestamps first. 
-This is not necessary, but will increase convergence time. 
-Most modern approaches register images by selecting key features from each image 
-and attempting to match them to other images of the scene. There are many approaches 
-for selecting features and describing them 
-that will be discussed in \ref{sec:features}. The features are matched between 
-images using similarity measurements.  TODO add content
+This sequential approach is not necessary, but will decrease convergence time 
+as it limits the number images that must be searched in a typical mission. 
+Like, most modern approaches, we register images by selecting key 
+features from each image 
+and attempting to relate them to other images in the scene. Relating the images 
+requires overcoming noise and finding unrelated, unknown translations, scaling, 
+and rotations between images. After the relationships have been determined, 
+it is also necessary to blend the related images together in a 
+manner such that the resulting mosaic is visually pleasing, seamless, and accurate.
 
 \section{Description of Features}
-The algorithm selected for feature or keypoint selector is important for the 
-A set of features is computed for every image
+A set of features is computed for every image in the scene in order to compare 
+and match overlapping images. These features are 
+typically selected to be differentiable from surrounding pixels, and typically 
+include corners or 2D features. This is sometimes difficult for ice surveys 
+because of the lack of corners or distinguishable features on images that contain 
+only ice or only water. All ice images often contain a high degree of repetitive 
+simularity which means even distinctive features can be incorectly matched with 
+non-overlapping images. 
+
+
+\begin{figure}
+    \centering
+    \begin{minipage}{.5\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{no_features.jpg}
+        \captionsetup{width=0.9\linewidth}
+        \captionof{figure}{A typical image of sea ice captured from a UAV with few features and homogoneous texture. }
+         \label{fig:no_features}
+     \end{minipage}%
+     \begin{minipage}{.5\textwidth}
+         \centering
+        \includegraphics[width=.9\linewidth]{good_features.jpg}
+        \captionsetup{width=0.9\linewidth}
+        \captionof{figure}{A sea ice image with many corners and distinctive  features to use for feature matching. }
+             \label{fig:good_features}
+      \end{minipage}
+\end{figure}
+
+
 feature tracking may fail if there is insufficient matches such in cases when the 
 discrete images have low overlap or have unremarkable features, such as 
 images of textures. 
@@ -426,11 +481,14 @@ with prjojective transformations \cite{Wang}.
 
 
 \section{Blending}
+Neighboring images in a mosaic can vary greatly in lighting, especially when 
+subsequent images are seperated by time. 
 When merging two images into one image, the seams are typically blended 
 to produce a result more pleasing to the human eye. 
 Our approach utilizes the open 
 source tool, Enblend, that uses a multi-resolution spline to blend images 
-together \cite{enblend}. 
+together using multi-resolution splines and Laplacian pyramids \cite{enblend, 
+Burt83thelaplacian}. 
 The spline operates across a transition zone that is proportional 
 to the spatial frequency of the region. Homogenous regions like an ice sheet 
 have low spatial frequency and are combined across a wide region.
@@ -446,6 +504,13 @@ data is not required to properly match images, though could be
 incorporated for faster matching. 
 
 \chapter{Experiments}
+demo 
+translation - minimal overlap, detected that there was no rotation or scaling.
+rotation   - what angle limit?
+-- show plot of actual angle of rotation vs calulated
+scaling - images should be scaled to size of smallest before stitching
+-- show plot of actual scaling vs calculated
+demo 
 \subsection{Aerial Surveys}
 
 \subsection{Image Patches}
@@ -502,35 +567,21 @@ There can be more paragraphs.\end{vita}
 %\textbackslash{}textbf\{second line \}...\}
 %
 %\textbackslash{}author\{...\} 
-%
 %\textbackslash{}maketitle 
-%
 %\textbackslash{}begin\{acknowledgements\} ... \textbackslash{}end\{acknowledgements\}
-%
 %\textbackslash{}begin\{abstract\} ... \textbackslash{}end\{abstract\}
-%
 %\textbackslash{}newpage 
-%
 %\textbackslash{}pagenumbering \{arabic\} 
-%
 %\textbackslash{}setcounter \{page\}\{1\} 
-%
 %\textbackslash{}pagestyle\{plain\}
-%
 %\textbackslash{}chapter\{...\} \% or \textbackslash{}include\{chap3\}
-%
 %...
-%
 %\textbackslash{}singlespace
-%
 %\textbackslash{}bibliographystyle\{...\} 
-%
 %\textbackslash{}bibliography\{...\}
-%
 %\textbackslash{}begin\{vita\}...\textbackslash{}end\{vita\}%
 %\end{minipage}}
 %\par\end{centering}
-%
 %\caption{Structure of a thesis \protect\LaTeX{} file\label{fig:Structure-of-thesis}}
 %\end{figure}
 %
