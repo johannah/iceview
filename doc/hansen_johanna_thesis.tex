@@ -168,9 +168,24 @@ There exists a large body of work for creating mosaics from digital photographs,
 beginning perhaps in 1975 with Milgram \cite{computermosaic, milgram2, }.
 Early work in digital mosaicing generally fell into two camps, 
 direct and feature based. Direct methods attempt to use correlations 
-over the entire image to find overlapping regions in images, while feature based methods extract interesting regions (such as lines or edges) and measures the similarity of these regions to determine overlaps. 
+over the entire image to find overlapping regions in images and can be
+slow and memory intensive \cite{Lucas81aniterative, Barnea}.  Feature
+based methods extract interesting regions (such as lines or edges) and
+measures the similarity of these regions to determine overlaps
+with less computational cost than the direct method \cite{featbased}. 
+Currently, most approaches use invariant features. This method works 
+by identifying the interesting regions and then describing a patch 
+around the feature or keypoint with a local descriptor which can 
+often made to be invariant to rotation or scaling between the images. 
+This was first described by Schmid who utilized Gaussian derivitives 
+to describe a keypoint in a manner that was rotationally invariant \cite{gausskpt}.  In 2004, Lowe extended this to scale invariance with his SIFT approach which is still widely used today and will be 
+considered in \ref{sec:features} \cite{SIFT}. Other research has 
+produced feature descriptors that have been demonstrated to work under various conditions \cite{Baumberg, dudek, SURF, ORB}. 
 
-In 2005, Brown et. al. defined a rotationally invariant, multi-scale, feature descriptor to match overlapping images \cite{multiscalepatch}.  
+
+
+
+In 2005, Brown et al. defined a rotationally invariant, multi-scale, feature descriptor to match overlapping images \cite{multiscalepatch}.  
 This panorama is a rotational motion solved by a cylindrical or spherical surface model.
 To produce a UAV image mosaic, however, the rotional motion about the camera axis 
 is replaced by a translational motion model that changes point of view.
@@ -183,7 +198,7 @@ accurate enough for a visually appealling image. In addition, accurate measureme
 would require more expensive sensors. 
 Moreover, GPS is not always a available or reliable at extreme latitudes where 
 ships are often working in sea ice.
-Prasad, et. al investigated the problem of developing mosaics in quadcopter surveys 
+Prasad, et al investigated the problem of developing mosaics in quadcopter surveys 
 with gaps in features using imu information to improve convergence time.
 The approach was demonstrated on building walls with only small regions (paintings) 
 that provided keypoints\cite{mosaicimu} 
@@ -472,7 +487,15 @@ Image registration involves overlaying multiple images from the same scene
 that were captured from a subset of different viewpoints, times, and/or cameras.
 
 \chapter{Global Registration}
+%
+used four motion models (direct, translation, similarity
+and affine) with 0, 2, 4 and 6 parameters respectively.
+TODO show results - 
+Note that matching performance
+is degraded for each new parameter that is added
+to the model
 
+%%%%%%%%%%%%%%%%%%%%%%
 We assume that the terrain to be mosaiked is approximately flat, 
 we can utilize affine transofrmations to translate image coordinates \cite{Wang}.
 This reduces the undesirable projection errors that are easily propagated 

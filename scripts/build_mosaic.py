@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from shutil import copyfile
+import subprocess
 from subprocess import Popen, PIPE
 from multiprocessing import Pool, freeze_support, cpu_count
 import matplotlib.pyplot as plt
@@ -48,6 +50,7 @@ def add_match(match_fp, putdir, img_name):
         for line in imfp.readlines():
             print(line)
             match_fp.write(line.strip())
+        print("Matched %s match_name, removing" %match_name)
         os.remove(match_name)
     return match_fp
 
@@ -70,9 +73,8 @@ def load_keypoints_and_descriptors(kppath):
 def get_keypoints_and_descriptors(ikdname, img_gray, extractor):
     try:
         img_k, img_d = load_keypoints_and_descriptors(ikdname)
-        print("loaded %s from file" %ikdname)
-    except IOError, e:
-        print(e)
+        print("loaded image %s from file" %ikdname)
+    except IOError:
         img_k, img_d = detect_and_extract(extractor, img_gray)
         save_keypoints_and_descriptors(ikdname, img_k, img_d)
         print("derived %s keypoints" %ikdname)
@@ -119,7 +121,7 @@ def find_all_matches(unmatched, run_num, min_to_match=40):
     unmatched.sort()
     init_num_unmatched = len(unmatched)
     while len(unmatched):
-        print("MY BASE NUM", run_num)
+        print("Working on run_%05i" %run_num)
         # get next unmatched image
         base_path = unmatched.pop(0)
         # read the image
@@ -231,6 +233,14 @@ if __name__ == '__main__':
     # unmatched images
     parser.add_argument('-c', dest='do_clear', action="store_true", default=False,
                        help='remove any existing images from the output directory')
+    parser.add_argument('-s', dest='resize', default=0,
+                       help='convert resize argument')
+    # start with run zero by default
+    parser.add_argument('-n', dest='run_num', default=0,
+                       help='The unmatched run_xxx number to search for')
+    parser.add_argument('-m', dest='min_matches', default=20,
+                       help='Minimum number of keypoint matches between images to count as a match')
+
     # parse command line
     try:
         args = parser.parse_args()
@@ -260,21 +270,20 @@ if __name__ == '__main__':
                 os.remove(f)
 
     channel = 2
-    min_matches = 20
-    run_num = 0
-    from shutil import copyfile
     # copy from original directory to working directory
     in_files = glob(os.path.join(input_dir, '*.%s' %input_image_type))
-    import subprocess
     for xx, ifile in enumerate(in_files):
-        o_name = get_basename(run_num, xx, 0)
+        o_name = get_basename(args.run_num, xx, 0)
         o_path = os.path.join(outdir, o_name)
-        cmd = ['convert', ifile, '-resize', '1500x2000', o_path ]
-        if not os.path.exists(o_path):
+        if args.resize != 0:
+            cmd = ['convert', ifile, '-resize', args.resize, o_path ]
             print("compressing and converting %s to %s" %(ifile, o_path))
-            #copyfile(ifile, o_path)
             subprocess.call(cmd)
-    unmatched = get_unmatched(run_num)
-    find_all_matches(unmatched, run_num+1, min_matches)
+        else:
+            print('copying %s to %s' %(os.path.split(ifile)[1],
+                                       os.path.split(o_path)[1]))
+            copyfile(ifile, o_path)
+    unmatched = get_unmatched(args.run_num)
+    find_all_matches(unmatched, args.run_num+1, args.min_matches)
 
 
