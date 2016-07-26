@@ -144,8 +144,8 @@ By registering the many images into a single mosaic,
 we can create a composite scene called a mosaic with a large field of 
 view, while maintaining high resolution.  
 
-Algorithms for aligning and stitching images into photomosaics have been 
-widely studied and commercialized, however, traditional
+
+    However, traditional
 methods tend to fail when tasked with stitching sea ice imagery.
 Both the ice and sea that are present in this type of imagery present challenges 
 for tradational mosaicing approaches. The ice itself is often nearly featureless, 
@@ -153,134 +153,154 @@ making it difficult for feature-based matching schemes to work robustly.
 Bodies of water are generally useless for feature matching because of its dynamic 
 properties and meaningless features over time. 
 This report approaches these problems by developing a pipeline for working 
-with a seaice dataset. 
+with a sea ice dataset. 
 
 
 \section{Background}
- [8], [20] [6]
-[5]
+
 Aerial photography has been used to gain a greater viewpoint of the world and 
 has been used extensively reconassance, agriculture, and science. 
 Historically, images were captured on air balloons and airplanes and then printed 
 and aligned by hand. In modern times, digital cameras and smartphones are capable of 
 automatically stitching panoramas on a small platform. 
-There exists a large body of work for creating mosaics from digital photographs, 
-beginning perhaps in 1975 with Milgram \cite{computermosaic, milgram2, }.
+There exists a large and robust body of work for creating mosaics from digital photographs
+\cite{computermosaic, milgram2, Szeliski97, Szeliski00, marcon2013, pizarro,   
+recognising, autostitch, Autopano, PhotoScan }, video \cite{Szeliski-video} and for full 3D 
+reconstruction \cite{Szeliski-3D}. These methods are more fully 
+reviewed in \cite{criticalreview, Zitova}.
+
+
 Early work in digital mosaicing generally fell into two camps, 
 direct and feature based. Direct methods attempt to use correlations 
 over the entire image to find overlapping regions in images and can be
-slow and memory intensive \cite{Lucas81aniterative, Barnea}.  Feature
+slow and memory intensive \cite{Lucas81aniterative, Barnea, Szeliski-direct}.  Feature
 based methods extract interesting regions (such as lines or edges) and
 measures the similarity of these regions to determine overlaps
 with less computational cost than the direct method \cite{featbased}. 
-Currently, most approaches use invariant features. This method works 
-by identifying the interesting regions and then describing a patch 
-around the feature or keypoint with a local descriptor which can 
+Most methods utilize extract intersting points from overlapping images, 
+such as regions of color, edges, 
+contours, or distinctive points and then match them 
+based on a local descriptor which can 
 often made to be invariant to rotation or scaling between the images. 
 This was first described by Schmid who utilized Gaussian derivitives 
-to describe a keypoint in a manner that was rotationally invariant \cite{gausskpt}.  In 2004, Lowe extended this to scale invariance with his SIFT approach which is still widely used today and will be 
-considered in \ref{sec:features} \cite{SIFT}. Other research has 
-produced feature descriptors that have been demonstrated to work under various conditions \cite{Baumberg, dudek, SURF, ORB}. 
+to describe a keypoint in a manner that was rotationally invariant \cite{gausskpt}.
+Feature based methods will be further investigated and compared in Section \ref{sec:features}.
 
+determine correspondences. 
 
-
-
-In 2005, Brown et al. defined a rotationally invariant, multi-scale, feature descriptor to match overlapping images \cite{multiscalepatch}.  
-This panorama is a rotational motion solved by a cylindrical or spherical surface model.
-To produce a UAV image mosaic, however, the rotional motion about the camera axis 
-is replaced by a translational motion model that changes point of view.
-Mosaics with extended field of view benefit 
-from the relatively large and equal distance to the scene in each image. 
-
-Images can be aligned quickly with Global Positioning System (GPS) and 
-Intertial Measurement Unit (IMU) data, however, these measurements are not 
-accurate enough for a visually appealling image. In addition, accurate measurements 
-would require more expensive sensors. 
-Moreover, GPS is not always a available or reliable at extreme latitudes where 
-ships are often working in sea ice.
-Prasad, et al investigated the problem of developing mosaics in quadcopter surveys 
-with gaps in features using imu information to improve convergence time.
-The approach was demonstrated on building walls with only small regions (paintings) 
-that provided keypoints\cite{mosaicimu} 
+Many researchers and engineers have utilized UAVs to gather images to form large-scale 
+photo mosaics \cite{ caballero, incremental, cheng, Pritt, Kekec-real-time, mosaicimu, vousdoukas, Wang}.
+Images collected with a UAV can often be quickly, but roughly  aligned 
+using data from sensors such as Global Positioning System (GPS) points and 
+Intertial Measurement Unit (IMU) estimates.
+However, these measurements are typically not 
+accurate or reliable enough to generate a visually appealling image. 
 Instead, most approaches for mosaicing UAV images is to extract common 
 features between consecutive images to infer the motion between images.
 This approach requires some degree of overlap between images and significantly 
 higher computing requirments than a simple alignment based on sensors, but it 
 produces much more accurate results. 
 
-There exist many open-source and proprietary packages for developing mosaics 
-from overlapping imagery such as Autopano or PhotoScan \cite{Autopano, PhotoScan}. 
-Autopano uses SIFT
+TODO: talk about matching then registration
+translational motion model that changes point of view.
+Mosaics with extended field of view benefit 
+from the relatively large and equal distance to the scene in each image. 
+How to recover mosaic with 3D rotations rather than 8 parameter planer 
+perspective transforms \cite{Szeliski97}
+Registration \cite{Barnea, Szeliski-refine}
+
 However, our experminents indicate that these packages were not 
 reliable for developing mosaics with sea ice 
-data.  
-The large volume of images with poor features that results from a typical  UAV sea-
-ice survey seemed to incapacitate the algorithm. When the surveys were divided 
+data. The large volume of images with poor features that results from a typical  UAV sea 
+ice survey seemed to incapacitate the algorithms available in commercial software.
+When the surveys were divided 
 into geographic batches, 
 stitching and warping errors typically resulted from the accuracy of feature 
-matching or the projection of object height. We assume that the scene lies on a 
-planar surface, and utilize knowledge about the structure of the survey to reduce 
+matching or the projection of object height. 
+Flaten discussed mosaicing sea ice images for the purpose of UAV navigation in \cite{Norway}, 
+but, was unable to demonstrate results using field data. 
+TODO: What does NOAA do? - by hand?
+The  approach discussed in this paper assumes that the scene lies on a 
+planar surface, as sea ice typically does, 
+and utilizes knowledge about the structure of the survey to reduce 
 the search space.
-Traditional image mosaicing approaches work by finding an intersection of 
-feature space between overlapping images. However, these methods fail when there
-are gaps in the survey due to featureless spaces (such as solid ice or waves) 
-in the images to be stitched. 
 
-Flaten \cite{Norway} developed a system for navigating a quadcopter over sea ice using 
-an infared camera. His approach compared SIFT, SURF, and ORB detectors and found 
-that SURF performed best. A brute force search was used to match 3431 out of 
-4119 images tested.
+In the remaining paragraphs we discuss how different researchers approached 
+similar problems in mosaicing images from difficult datasets. 
 
-Most methods utilize intersting points, such as regions of color, edges, 
-contours, or distinctive points. These features are then searched for in 
-nearby images. If distinctive features are detected, they are matched to 
-determine correspondences. 
+Prasad, et al investigated the problem of developing mosaics in quadcopter surveys 
+with gaps in features using imu information to improve convergence time.
+The approach was demonstrated on building walls with only small regions (paintings) 
+that provided keypoints\cite{mosaicimu} 
 
-TODO: overview of air, underwater mosaic
+Underwater scenes resemble ice scenes in that they can both be featureless and 
+large datasets. In 1996, Fleischer introduced video mosaicing underwater for arbitray 
+\cite{Fleischer}. In 2003, Pizarro introduced a zernike-feature based 
+approach to mosaic large scale featureless 
+scenes underwater with lighting correction \cite{pizarro-thesis, pizarro}. 
+Large area addition aided by navigational sensors 
+to generate 3D submaps that are merged using bundle adjustment \cite{large-pizarro}.
+MATISSE, released 
+in 2004 also provides mosaicing capability to seabed videos with navigation data
+in conjunction with ArcView\cite{MATISSE-realtime, MATISSE}. 
+TODO: read \cite{Eustice, Ferrer, Fleischer, MATISSE, MATISSE-realtime}
+In 2013 LAPM was 
+introduced to provide a general tool for underwater mosaicing for end-user scientists 
+in Matlab \cite{marcon2013}. It uses an open-source implementation of 
+SIFT features to match images in addition to track information. 
 
+Small dynamic scene mosaics have been tackled in \cite{Fitzgibbon, Rav-Acha, Skeliski-ghost}. 
+However, our approach was to use a simpler, masking scheme to bar the feature 
+extraction algorithm from extracting keypoints from the dynamic portions of our 
+images. This is similar to the approach taken by Vousdoukas to mask sea and sea foam
+from shoreline images captured form an UAV in which he 
+manually selecting pixels associated with the 
+sea and foam and thresholding based on these intensities \cite{vousdoukas}. Because 
+Vousdoukas' mosaic was created along the shoreline, he was able to use 
+interesting keypoints from the shoreline to complete the mosaic using SIFT features. 
+
+
+
+Discussed how to measure error in underwater mosaics using vehicle navigation 
+data \cite{mosaic-error}.
+
+MEASURE CHANGE \cite{vent-growth}
+
+
+Prathap gives a thorough review of the current state of mosaicing \cite{criticalreview}. 
+
+
+
+
+% I'm not sure where this is from \cite{fourier_mosaic_seabed}
 \section{Thesis Overview}
 
-The problem of image mosaicing can be broken several steps involving detecting 
-overlapping regions between images and then aligning merging them into a larger image.
+The problem of image mosaicing can be broken several steps. The first step 
+is to identify images that have 
+overlapping regions. Then these regions must be correctly aligned and 
+merged onto the larger mosaic. Identifying overlapping regions is a difficult 
+problem, especially in a large search space. Sea ice images also present a 
+fairly unique problem in that the images contain largely repeating, homogenous 
+pixels that do not perform well with traditional techniques.
 For the iceview problem, we add an additional preliminary step to detect 
 nonstationary features and remove them from the pixels that are considered for 
 feature detection. 
 
 \begin{enumerate}
-\item{Segment the image into non-water and water regions}
-\item{Extract features from non-water regions}
+\item{Segment the image into stationary and non-stationary regions}
+\item{Extract features from stationary regions}
 \item{Determine matching features between images}
 \item{Estimate homography between images that contain the same keypoints}
 \item{Warp images according to estimated homographies so that their overlapping 
 regions align}
-\item{Paste warped images onto a common scene and blend neighboring pixels}
+\item{Paste warped images onto the common scene and blend neighboring pixels}
 \end{enumerate}
 
-This approach is purely image based and does not neccessitate the use 
-of navigation data.
+The approach disucussed in this thesis 
+is purely image based and does not neccessitate the use 
+of navigation data, however, neighboring images in 
+time are searched first for overlap to improve convergence time.
 
-
-
-\chapter{Segmentation}
-
-Image stitching techniques utilize features that are consistent amongst 
-overlapping images, however, UAV images are captured serially, so nonstationary 
-features in the images are subject to change between images. In sea ice imagery, 
-the sea is subject to waves and ripples that may be extracted as features, but 
-will change over time and could result in false matches or no matches. 
-There are many methods for mosaicing a scene with dynamics in the static mosaic. 
-Some approaches eliminate all dynamic information in the scene, while others 
-attempt to encapsulate the changes between images by overlaying the movement 
-into the mosaic. For the purposes of the iceview system, the dynamic movement 
-of waves is not interesting information, so we blur the movement in this section. 
-We can exclude water from the feature extraction by first segmenting
-the image into ice and non-ice pixels. 
-
-TODO: 
-Thresholding gray level occurance
-gabor filter - texture
-glcp - statistical
-The histograms for sea ice images are generally bimodal
 
 \chapter{Feature Detection and Matching}
 
@@ -298,6 +318,30 @@ and rotations between images. After the relationships have been determined,
 it is also necessary to blend the related images together in a 
 manner such that the resulting mosaic is visually pleasing, seamless, and accurate.
 
+\chapter{Segmentation}
+
+Image stitching techniques utilize features that are consistent amongst 
+overlapping images, however, UAV images are captured serially, so nonstationary 
+features in the images are subject to change between images. In sea ice imagery, 
+the sea is subject to waves and ripples that may be extracted as features, but 
+will change over time and could result in false matches or no matches. 
+There are many methods for mosaicing a scene with dynamics in the static mosaic. 
+Some approaches eliminate all dynamic information in the scene, while others 
+attempt to encapsulate the changes between images by overlaying the movement 
+into the mosaic. For the purposes of the iceview system, the dynamic movement 
+of waves is not interesting information, so we blur the movement in this section. 
+We can exclude water from the feature extraction by first segmenting
+the image into ice and non-ice pixels. 
+
+
+TODO: 
+Thresholding gray level occurance
+gabor filter - texture
+glcp - statistical
+The histograms for sea ice images are generally bimodal
+
+Show examples where bad keypoints are detected
+
 \section{Description of Features}
 A set of features is computed for every image in the scene in order to compare 
 and match overlapping images. These features are 
@@ -308,6 +352,11 @@ only ice or only water. All ice images often contain a high degree of repetitive
 simularity which means even distinctive features can be incorectly matched with 
 non-overlapping images. 
 
+In 2004, Lowe extended this to scale invariance with his SIFT 
+approach which is still widely used today and will be 
+considered in \ref{sec:features} \cite{SIFT}. Other research has 
+produced feature descriptors that have been demonstrated to work under various conditions \cite{Baumberg, dudek, SURF, ORB}. 
+Zernike \cite{psuedo_zernike_mosaic, pizarro, dudek, dudekold}
 
 \begin{figure}
     \centering
@@ -350,6 +399,8 @@ A successor to SIFT, Speeded-Up Robust Features (SURF) is a popular
 algorithm that yields similar feature performance to SIFT, but with 
 faster computation time \cite{SURF}. 
 
+In 2005, Brown et al. defined a rotationally invariant, multi-scale, feature descriptor to match overlapping images \cite{multiscalepatch}.  
+
 
 \subsection{Zernike Descriptors}
 Zernike moment descriptors allow matching between points with arbitrary 
@@ -366,7 +417,7 @@ rotational invariant and can be made to be scale and translational invariant.
 Magnitude of zernike moments are rotationally invariant. Used by \cite{pizarro}
 Zernike momemnt are a set of orthogonal polynomials that offer a complete 
 solution to recover rotational and scaling parameters. 
-
+Used zernike to create mosaic - read more \cite{psuedo_zernike_mosaic}
 Zernike Polynomials 
 complex polynomials that are orthogonal over the unit circle $x^2 + y^2 = 1$. 
 They can be expressed in radial and angular components. 
@@ -487,6 +538,10 @@ Image registration involves overlaying multiple images from the same scene
 that were captured from a subset of different viewpoints, times, and/or cameras.
 
 \chapter{Global Registration}
+\section{Making it fast}
+TODO: \cite{Kekec-real-time}
+Could use direct reference with IMU/ GPS, but the relatively large error of position 
+and altitude 
 %
 used four motion models (direct, translation, similarity
 and affine) with 0, 2, 4 and 6 parameters respectively.
@@ -495,13 +550,16 @@ Note that matching performance
 is degraded for each new parameter that is added
 to the model
 
+
+TODO: read \cite{Szeliski-refine}
 %%%%%%%%%%%%%%%%%%%%%%
+TODO: read \cite{Szeliski-3D} about 3d stuff 
 We assume that the terrain to be mosaiked is approximately flat, 
 we can utilize affine transofrmations to translate image coordinates \cite{Wang}.
 This reduces the undesirable projection errors that are easily propagated 
 with prjojective transformations \cite{Wang}.
 
-
+Maybe talk about ghosting \cite{Skeliski-ghost}
 
 \section{Blending}
 Neighboring images in a mosaic can vary greatly in lighting, especially when 
