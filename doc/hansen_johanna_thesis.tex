@@ -85,6 +85,7 @@ Thanks!
 \end{acknowledgements}
 
 \begin{abstract}
+
 Unmanned Aerial Vehicles are providing revolutionary inexpensive, 
 real-time access to the terrain around us. One application where this technology 
 is especially valuable is for ships navigating in ice laden waters. For these ships, 
@@ -164,19 +165,19 @@ Historically, images were captured on air balloons and airplanes and then printe
 and aligned by hand. In modern times, digital cameras and smartphones are capable of 
 automatically stitching panoramas on a small platform. 
 There exists a large and robust body of work for creating mosaics from digital photographs
-\cite{computermosaic, milgram2, Szeliski97, Szeliski00, marcon2013, pizarro,   
-recognising, autostitch, Autopano, PhotoScan }, video \cite{Szeliski-video} and for full 3D 
-reconstruction \cite{Szeliski-3D}. These methods are more fully 
-reviewed in \cite{criticalreview, Zitova}.
+\cite{Milgram75, Milgram77, Szeliski97, Shum00, Marcon13,   
+Brown03, Brown07, Autopano, PhotoScan }, video \cite{Szeliski96, Steedly05} and for full 3D 
+reconstruction \cite{Morimoto97, Shum-3D98}. These methods are more fully 
+reviewed in \cite{Prathap16, Zitova03}.
 
 
 Early work in digital mosaicing generally fell into two camps, 
 direct and feature based. Direct methods attempt to use correlations 
 over the entire image to find overlapping regions in images and can be
-slow and memory intensive \cite{Lucas81aniterative, Barnea, Szeliski-direct}.  Feature
+slow and memory intensive \cite{Lucas81, Barnea72, Szeliski95}.  Feature
 based methods extract interesting regions (such as lines or edges) and
 measures the similarity of these regions to determine overlaps
-with less computational cost than the direct method \cite{featbased}. 
+with less computational cost than the direct method \cite{Forstner86}. 
 Most methods utilize extract intersting points from overlapping images, 
 such as regions of color, edges, 
 contours, or distinctive points and then match them 
@@ -189,7 +190,7 @@ Feature based methods will be further investigated and compared in Section \ref{
 determine correspondences. 
 
 Many researchers and engineers have utilized UAVs to gather images to form large-scale 
-photo mosaics \cite{ caballero, incremental, cheng, Pritt, Kekec-real-time, mosaicimu, vousdoukas, Wang}.
+photo mosaics \cite{ Caballero07, Yahyanejad10, Cheng10, Pritt14, Kekec14, Prasad16, Vousdoukas11, Wang11}.
 Images collected with a UAV can often be quickly, but roughly  aligned 
 using data from sensors such as Global Positioning System (GPS) points and 
 Intertial Measurement Unit (IMU) estimates.
@@ -207,8 +208,7 @@ Mosaics with extended field of view benefit
 from the relatively large and equal distance to the scene in each image. 
 How to recover mosaic with 3D rotations rather than 8 parameter planer 
 perspective transforms \cite{Szeliski97}
-Registration \cite{Barnea, Szeliski-refine}
-
+Registration \cite{Barnea72, Shum-local98, Sawhney99}
 However, our experminents indicate that these packages were not 
 reliable for developing mosaics with sea ice 
 data. The large volume of images with poor features that results from a typical  UAV sea 
@@ -217,7 +217,7 @@ When the surveys were divided
 into geographic batches, 
 stitching and warping errors typically resulted from the accuracy of feature 
 matching or the projection of object height. 
-Flaten discussed mosaicing sea ice images for the purpose of UAV navigation in \cite{Norway}, 
+Flaten discussed mosaicing sea ice images for the purpose of UAV navigation in \cite{Flaten-thesis15}, 
 but, was unable to demonstrate results using field data. 
 TODO: What does NOAA do? - by hand?
 The  approach discussed in this paper assumes that the scene lies on a 
@@ -231,43 +231,43 @@ similar problems in mosaicing images from difficult datasets.
 Prasad, et al investigated the problem of developing mosaics in quadcopter surveys 
 with gaps in features using imu information to improve convergence time.
 The approach was demonstrated on building walls with only small regions (paintings) 
-that provided keypoints\cite{mosaicimu} 
+that provided keypoints\cite{Prasad16} 
 
 Underwater scenes resemble ice scenes in that they can both be featureless and 
 large datasets. In 1996, Fleischer introduced video mosaicing underwater for arbitray 
-\cite{Fleischer}. In 2003, Pizarro introduced a zernike-feature based 
+\cite{Fleischer96}. In 2003, Pizarro introduced a zernike-feature based 
 approach to mosaic large scale featureless 
-scenes underwater with lighting correction \cite{pizarro-thesis, pizarro}. 
+scenes underwater with lighting correction \cite{Pizarro03}. 
 Large area addition aided by navigational sensors 
-to generate 3D submaps that are merged using bundle adjustment \cite{large-pizarro}.
+to generate 3D submaps that are merged using bundle adjustment \cite{Pizarro04}.
 MATISSE, released 
 in 2004 also provides mosaicing capability to seabed videos with navigation data
-in conjunction with ArcView\cite{MATISSE-realtime, MATISSE}. 
-TODO: read \cite{Eustice, Ferrer, Fleischer, MATISSE, MATISSE-realtime}
+in conjunction with ArcView\cite{Vincent03, Vincent04}. 
+TODO: read \cite{Eustice02, Ferrer07, Fleischer96, Vincent03, Vincent04} 
 In 2013 LAPM was 
 introduced to provide a general tool for underwater mosaicing for end-user scientists 
-in Matlab \cite{marcon2013}. It uses an open-source implementation of 
+in Matlab \cite{Marcon13}. It uses an open-source implementation of 
 SIFT features to match images in addition to track information. 
 
-Small dynamic scene mosaics have been tackled in \cite{Fitzgibbon, Rav-Acha, Skeliski-ghost}. 
+Small dynamic scene mosaics have been tackled in \cite{Fitzgibbon01, Rav-Acha07, Davis98, Uyttendaele01}. 
 However, our approach was to use a simpler, masking scheme to bar the feature 
 extraction algorithm from extracting keypoints from the dynamic portions of our 
 images. This is similar to the approach taken by Vousdoukas to mask sea and sea foam
 from shoreline images captured form an UAV in which he 
 manually selecting pixels associated with the 
-sea and foam and thresholding based on these intensities \cite{vousdoukas}. Because 
+sea and foam and thresholding based on these intensities \cite{Vousdoukas11}. Because 
 Vousdoukas' mosaic was created along the shoreline, he was able to use 
 interesting keypoints from the shoreline to complete the mosaic using SIFT features. 
 
 
 
 Discussed how to measure error in underwater mosaics using vehicle navigation 
-data \cite{mosaic-error}.
+data \cite{Roman01}.
 
-MEASURE CHANGE \cite{vent-growth}
+MEASURE CHANGE vent growth \cite{Bodenmann14}
 
 
-Prathap gives a thorough review of the current state of mosaicing \cite{criticalreview}. 
+Prathap gives a thorough review of the current state of mosaicing \cite{Prathap16}. 
 
 
 
@@ -354,10 +354,10 @@ non-overlapping images.
 
 In 2004, Lowe extended this to scale invariance with his SIFT 
 approach which is still widely used today and will be 
-considered in \ref{sec:features} \cite{SIFT}. Other research has 
-produced feature descriptors that have been demonstrated to work under various conditions \cite{Baumberg, dudek, SURF, ORB}. 
-Zernike \cite{psuedo_zernike_mosaic, pizarro, dudek, dudekold}
-
+considered in \ref{sec:features} \cite{Lowe04}. Other research has 
+produced feature descriptors that have been demonstrated to work under various conditions \cite{Baumberg00, Badra98, Bay08, Rublee11}. 
+Zernike \cite{Zhanlong13, Pizarro03, Badra98, Badra99}
+about \cite{Ameyah07}
 \begin{figure}
     \centering
     \begin{minipage}{.5\textwidth}
@@ -388,36 +388,37 @@ computation time.
 
 
 \label{sec:features}
+There exists a wide variety of feature extraction algorithms.
 A descriptor describes the neighborhood of pixels around a keypoint.  
 Considerable effort has been invested in improving the robustness of 
-descriptors to changes in sensors, illumination, and zoom.  
-There exists a wide variety of feature extraction algorithms.
+descriptors to changes in translation, rotation, and scaling.  
 One of the most well known and often used keypoint descriptors is Scale
-Invariant Feature Transform  or SIFT \cite{SIFT} which detects keypoints 
+Invariant Feature Transform  or SIFT \cite{Lowe04} which detects keypoints 
 based on Difference of Gaussians (DOG). 
 A successor to SIFT, Speeded-Up Robust Features (SURF) is a popular 
 algorithm that yields similar feature performance to SIFT, but with 
-faster computation time \cite{SURF}. 
+faster computation time \cite{Bay08}. 
 
-In 2005, Brown et al. defined a rotationally invariant, multi-scale, feature descriptor to match overlapping images \cite{multiscalepatch}.  
+In 2005, Brown et al. defined a rotationally invariant, multi-scale, feature descriptor to match overlapping images \cite{Brown05}.  Good foundation paper \cite{Brown05}
 
 
 \subsection{Zernike Descriptors}
+\cite{Bin02}
 Zernike moment descriptors allow matching between points with arbitrary 
 rotation and large scale changes in a computationally efficient methodology.  Zernike moements perform well in the presence of noise. 
 
 Edge density
 
 Pizarro sucessfully demonstrated the the use of Zernike Moments for shape descriptors 
-in low-contrast environments \cite{pizarro}. This technique has been applied 
-for mosaicing by \cite{dudek} and \cite{dudekold} as well as for classification 
+.... mosaic  \cite{Pizarro03, Badra99}. This technique has been applied 
+s well as for classification 
 problems TODO cite other.
 
 rotational invariant and can be made to be scale and translational invariant. 
-Magnitude of zernike moments are rotationally invariant. Used by \cite{pizarro}
+Magnitude of zernike moments are rotationally invariant. Used by \cite{Pizarro03}
 Zernike momemnt are a set of orthogonal polynomials that offer a complete 
 solution to recover rotational and scaling parameters. 
-Used zernike to create mosaic - read more \cite{psuedo_zernike_mosaic}
+Used zernike to create mosaic - read more \cite{Zhanlong13}
 Zernike Polynomials 
 complex polynomials that are orthogonal over the unit circle $x^2 + y^2 = 1$. 
 They can be expressed in radial and angular components. 
@@ -454,7 +455,7 @@ Average number of keypoints, precision in percentage, recall in percentage,
 average number of best matches. Parameters in each of the detectors are 
 tuned so that xxx features are detected in the reference image.  
 If more than xxx features are detected, the first xxx are taken as 
-in \cite{Bekele}.  
+in \cite{Bekele13}.  
 
 Calculation of the precision is performed by finding 
 \section{Outlier Rejection}
@@ -472,7 +473,7 @@ keypoints with the percentage of the accuracy.
 
 \subsection{Evaluation of Feature Descriptors}
 Evaluation of keypoint detectors. Bekele et al provides an evaluation 
-of keypoint detectors in \cite{Bekele} in which escriptors are considered 
+of keypoint detectors in \cite{Bekele13} in which escriptors are considered 
 from BRIEF, ORB, BRISK, and FREAK. 
 Recall and precision can be used to compare performance of descriptors 
 demonstrated.
@@ -539,7 +540,7 @@ that were captured from a subset of different viewpoints, times, and/or cameras.
 
 \chapter{Global Registration}
 \section{Making it fast}
-TODO: \cite{Kekec-real-time}
+TODO: \cite{Kekec14}
 Could use direct reference with IMU/ GPS, but the relatively large error of position 
 and altitude 
 %
@@ -551,15 +552,15 @@ is degraded for each new parameter that is added
 to the model
 
 
-TODO: read \cite{Szeliski-refine}
+TODO: read \cite{Shum-local98}
 %%%%%%%%%%%%%%%%%%%%%%
-TODO: read \cite{Szeliski-3D} about 3d stuff 
+TODO: read \cite{Shum-3D98} about 3d stuff 
 We assume that the terrain to be mosaiked is approximately flat, 
-we can utilize affine transofrmations to translate image coordinates \cite{Wang}.
+we can utilize affine transofrmations to translate image coordinates \cite{Wang11}.
 This reduces the undesirable projection errors that are easily propagated 
-with prjojective transformations \cite{Wang}.
+with prjojective transformations \cite{Wang11}.
 
-Maybe talk about ghosting \cite{Skeliski-ghost}
+Maybe talk about ghosting \cite{Uyttendaele01}
 
 \section{Blending}
 Neighboring images in a mosaic can vary greatly in lighting, especially when 
