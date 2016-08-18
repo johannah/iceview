@@ -259,6 +259,11 @@ in Matlab \cite{Marcon13}. It uses an open-source implementation of
 SIFT features to match images in addition to track information. 
 Parallax free underwater \cite{Nagaraja14}
 
+*****
+n a 2D image element, which stores a color for each pixel, additional data is stored in the alpha channel with a value between 0 and 1. A value of 0 means that the pixel does not have any coverage information and is transparent; i.e. there was no color contribution from any geometry because the geometry did not overlap this pixel. A value of 1 means that the pixel is opaque because the geometry completely overlapped the pixel.
+****
+ globally consistent mosaic uses all overlap information, including overlap from images that are not consecutive in time
+
 \section{Dynamic Mosaics}
 Small dynamic scene mosaics have been tackled in \cite{Fitzgibbon01, Rav-Acha07, Davis98, Uyttendaele01}. 
 However, our approach was to use a simpler, masking scheme to bar the feature 
@@ -273,6 +278,15 @@ interesting keypoints from the shoreline to complete the mosaic using SIFT featu
 ICEBERGS
 https://brage.bibsys.no/xmlui/bitstream/handle/11250/2354133/13934_FULLTEXT.pdf?sequence=1&isAllowed=y
 
+
+
+The main goal of this
+thesis is to develop methods for mosaicking of individual aerial images taken from
+homogeneous or heterogeneous sensors on small-scale UAVs. The mosaicking of images
+taken in such scenarios are challenging as compared to panoramic construction
+or other mosaicking methods such as satellite image mosaicking. When flying with
+UAVs at a relatively low altitude (below 100m), non-planar objects on the ground
+make the feature matching and image registration more di!cult.
 
 Discussed how to measure error in underwater mosaics using vehicle navigation 
 data \cite{Roman01}.
@@ -339,7 +353,7 @@ of navigation data, however, neighboring images in
 time are searched first for overlap to improve convergence time.
 
 
-\chapter{Feature Detectiong and Matching}
+\chapter{Feature Detection and Matching}
 
 The main problem in generating a map from ice imagery is 
 finding overlapping regions between neighboring images and pasting them together 
@@ -397,6 +411,37 @@ Evaluation and selection of features detection algorithms was guided by
 Tuytelaar \cite{Tuytelaars08}. Bekele \cite{Bekele13} which provide good 
 overviews of popular feature descriptors and 
 detectors and their performance. 
+Features are selected to provide robustness in front of certain
+degree of distortion, so that the same point can be detected
+when observed from a different view point.
+
+uses Zernike moments, which are robust
+to scale and rotation. More robust approaches are SIFT [23]
+and more recently SURF [24], which produce rotation and
+scale invariant features. SIFT and SURF features are becoming
+important features in recent approaches
+
+\cite{Oceans11} Aulinas
+distinguishes high quality features using :
+The second stage is focused on detecting RoIs within
+these images, i.e. segmenting RoIs. In order to do so, two
+parallel segmentation processes are computed. Both of them
+are based on image processing common operations. The first
+process starts with edge detection, producing the binary image
+shown in Fig. 6(b). Afterwards, erode/dilate operations are
+conducted, joining regions and eliminating insignificant spots
+(see Fig. 6(c)). Next step is a region search within this
+black and white image, producing the segmentation shown in
+Fig. 6(d). On the other hand, the second process uses the Hue
+channel (see Fig. 6(e)). This channel is then blurred in order
+to smooth the whole image. Afterwards, a threshold is applied,
+giving the results shown in Fig. 6(f)). This threshold is selected
+according to the mean value of the Hue image. Afterwards,
+a region search is conducted, producing the results shown in
+Fig. 6(g). At this point both processes are fused: a RoI is
+selected through the intersection of both segmentations (see
+Fig. 6(h)).
+***
 
 One of the most well known and often used keypoint descriptors is Scale
 Invariant Feature Transforms (SIFT) \cite{Lowe04}. SIFT descriptors detects keypoints 
@@ -477,6 +522,15 @@ in \cite{Bekele13}.
 %$\rho$ is the magnitude of the vector from the origin to the point $(x,y)=x^2+y^2$
 %$\theta$ is the angle between the vector and the x-axis in a counter-clockwise direction
 
+*********
+Features with a low successes/attempts ratio in
+matching — in practice 0.5 — are deleted from the
+map if at least 10 matches have been attempted. This
+simple map maintenance mechanism allows deletion of
+non-trackable features — for example those detected on
+moving objects or people. Non persistent static scene
+features (for instance caused by reflections) are also removed.
+*************
 \chapter{Segmentation}
 
 Image stitching techniques utilize features that are consistent amongst 
@@ -692,6 +746,9 @@ introduced rotation and scaling into each sub-image.
 
 \chapter{Conclusion and Future Work}
 \subsection{UAV Sensor Integration}
+
+\section{Side Scan Sonar}
+end and receive sound signals over a broad swath of sea floor. The resulting data consists of a pattern of signal returns of variable strength which provide a picture of the sea floor’s composition. 
 
 
 \pagebreak{}
