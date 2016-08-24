@@ -73,7 +73,7 @@ All rights reserved. }
 teachers who have guided me throughout this process.}}
 
 
-\title{\textbf{IceView: A System for Mosaicing Sea Ice in Changing Environments}}
+\title{\textbf{Monitoring Sea Ice with Unmanned Aerial Vehicles}}
 
 
 \author{Johanna Hansen}
@@ -86,55 +86,101 @@ Thanks!
 
 \begin{abstract}
 
-    Unmanned Aerial Vehicles (UAVs) are providing revolutionary inexpensive, 
-real-time access to the terrain around us. One application where this technology 
-is especially valuable is for ships navigating in ice laden waters. For these ships, 
-satellites are often too slow to provide up-to-date information and helicopters 
-are cost prohibitive. UAVs collect many images with small fields of view. To 
-organize these photos so that the data is human interpretable, 
-they are organized into a single mosaic which combines many views of the 
-same scene into a single image. To acomplist this, the geometric
- relationships between the images must be determined.
-
-Traditional image mosaicing algorithms tend to fail when faced with sea ice 
-scenes for two reasons; ice itself typically has very few features from which 
-to match to overlapping images and water pixels are dynamic in nature  
-making it impossible to match with overlapping images that are taken at different 
-points in time. The Iceview system attempts to solve these obstacles by 
-utilizing multi-scale Harris point detector coupled with a Zernike feature 
-descriptor.  This approach assumes that the extended scene 
-is planar and determines homographies for each image by topology estimation 
-through feature-based pairwise image registation across all images using a 
-multi-scale Harris point detector with a feature descriptor. The approach is 
-demonstrated using real data obtained on an Artic Expedition. 
+    Unmanned Aerial Vehicles (UAVs) are providing revolutionary  
+real-time access to the terrain around us. The low cost and accessability of this technology has empowered military, agricultural, commercial, and recreational applications with new sensing capabilities. 
+This thesis will focus on the application of low-altitude aerial photography for sea ice monitoring, useful for polar sea expidentions and research endeavors as scientists 
+try to better understand the world's changing climate. 
+For ships navigating in ice laden waters, UAVs provide the potential
+to replace manned helicopters acting as scouts for 
+ ships navigating in ice laden waters. For these ships, 
+real-time knowledge about the changing and often dangerous 
+conditions is necessary. Though UAVs provide an excellent data collection platform, 
+that data can be labor intensive to process and interpret. Images captured from 
+a UAV provide a small field-of-view, meaning that hundreds, if not thousands of 
+images are collected on a single scouting mission. The common way to organize 
+this information is by joining the overlapping images into a single field of
+view image known as a mosaic. The process of creating a mosaic automatically requires 
+finding overlapping scenes within neighboring images and then registering each image 
+based on the overlap onto a common scene which is known as the mosaic. 
+Although this is a fairly routine process with modern computers, traditional 
+image mosaicing algorithms tend to fail when faced with sea ice 
+scenes. Sea ice is difficult to mosaic for two main reasons; ice itself 
+typically has very few distinguishing features from which 
+to match to overlapping images, and water pixels are dynamic in nature,  
+making it impossible to match images with overlapping scenes that are taken 
+at different points in time as in the case of images captured from a UAV flying 
+over a scene.
+Here we present a method for adding robustness to the mosaicing process by utilizing
+sensor information from the vehicle and providing a tier of matching solutions that
+isolate dynamic scenes. In addition, we provide an estimate of surface coverage 
+of ice. 
+The surface estimation provides a quantitative tool which is useful for
+scientific endeavors and vessel operators. 
+****
+TODO: incremental, orthorectified, low-altitude aerial images. 
+Incemental mosaicking means we update the mosaic as new images are added to the 
+collection meaning that the overview mosaic is produced quickly. The first method combines 
+metatdata from the UAV such as GPS positions and UAV orientation to speed up the 
+matching process. The second method does not utilize any external information 
+and relies only on the images to produce the mosaic. 
+****
+This approach is demonstrated using 
+real data obtained over several days on an Artic Expedition. 
 
 \end{abstract}
 \pageone{}
 
 \chapter{Introduction}
+Capturing images from a low-altitute provides detailed information of the 
+target scene, but the tradeoff for resolution is field-of-view. To obtain understanding 
+of a scene spread across many high resolution images with a small field-of-view, 
+it necessary to combine the information into a larger image by mosaicking the images 
+together into a single image. 
+Image mosaicking has been utilized to join images of overlapping aerial
+scenes since long before digital photographs \cite{Wolf83}. Originally, film 
+photographs were captured from hot air balloons or low-flying aircraft and pasted 
+together by hand. Later, satellites and digital photography advanced the field 
+of remote sensing and we began to stitch and analyze large volumes of images 
+with computers. Now, image stitching is commonplace and the technology is embedded 
+in many smart phones equipped with cameras for use for stabilization, small panoramas, 
+and multiple image super-resolution. Many dedicated software programs are 
+available to provide image stitching including 
+Autostitch, AutoPano, Hugin, Adobe Photoshop \cite{TODO}. In this work, we will 
+survey the many approaches available for constructing a mosaic and analyzing its 
+accuracy. 
 
 \section{Motivation}
 
 Expeditions into the world's frozen oceans requires expert navigation and 
 real-time knowledge of the constantly shifting conditions. This region of the earth 
 is both interesting from a scientific perspective  
-because much of it remains unexplored. It also harbours rich natural resources 
-that passage ways that are increasingly important to government and commercial 
+because much of it remains unexplored and because it is rapidly changing.
+It also harbours rich natural resources 
+that are increasingly accessible and important to government and commercial 
 interests. However, navigating and working in remote sea ice still presents 
-a significant technological challenge and requires constant monitoring to work 
-safely. Historically, ships working in these conditions
+a significant technological challenge and requires constant monitoring of
+sea ice to work 
+safely. 
+
+Historically, ships working in these conditions
 have relied on human scouts, helicopters, and/or satellite imagery to monitor 
-the sea ice movement.  However, these approaches are resource intensive suboptimal
-solutions. Manned aircraft such as helicopters are often prohibitively 
-expensive and require 
-expert pilots and precious deck space. Satellite sensors provide useful overviews, 
-but are typically low-resolution, 
-prone to occlusion by cloudcover or atmospheric conditions, 
-and often updated at a prohibitively low frequency for shifting conditions.
+the sea ice movement.  However, these approaches are resource intensive in the 
+case of helicopters and suboptimal in the case of satellites. 
+Manned aircraft are expensive to operate, requiring 
+expert pilots and precious deck space and do not necessarily solve the scientific 
+problem of cataloguing the sea state. In addition, the low cost and lack of a human 
+operator in a UAVs means that 
+they can be operated in riskier conditions than manned aircraft. 
+Satellite sensors can provide useful
+overviews, but the data captured is low-resolution both in time and coverage. It 
+is also prone to occlusion by cloud cover or atmospheric conditions. 
 
 Unmanned Aerial Vehicles (UAVs) equipped with high
-resolution digital cameras offer a low-cost, real-time alternative to manned aircraft. 
-They require little expertise to operate and little deck space. However, because 
+resolution digital cameras offer a low-cost alternative to manned aircraft. The 
+advantage over sattelite imagery is obvious in that the 
+data is much higher resolution and a survey can be conducted at the
+operators discretion. 
+UAVs require little expertise to operate and little deck space. However, because 
 there is no human observer of the terrain, the data collected from the vehicle must 
 be processed and analyzed in a way that is useful for non-technical decision makers. 
 Although UAVs can provide images with high resolution, each image only covers a 
@@ -150,173 +196,44 @@ By registering the many images into a single mosaic,
 we can create a composite scene called a mosaic with a large field of 
 view, while maintaining high resolution.  
 
+Several commercially available programs 
+have been applied to sea ice dataset with disappointing results. The features 
+from the sea ice data are often poor or dynamic, causing the non-specialized programs 
+to misregister images or fail completely. 
+Our approach addresses the reasons these
+approaches fail and adds additional advantage in the form of sea ice coverage information. 
 
-    However, traditional
-methods tend to fail when tasked with stitching sea ice imagery.
-Both the ice and sea that are present in this type of imagery present challenges 
-for tradational mosaicing approaches. The ice itself is often nearly featureless, 
-making it difficult for feature-based matching schemes to work robustly. 
-Bodies of water are generally useless for feature matching because of its dynamic 
-properties and meaningless features over time. 
-This report approaches these problems by developing a pipeline for working 
-with a sea ice dataset. 
+\section{Problem Statement}
+The high-resolution low field-of-view tradeoff accepted by the  UAV means that many 
+high resolution images are captured in an attempt to understand a scene. Our aim  
+in this thesis is to make sense of the data by aligning the many images  
+ into a an overview mosaic of the scene while providing useful information about 
+ the survey area. The process of creating a mosaic 
+requires recognizing overlapping regions between images (if they exist) and 
+then determining the transformation between each image onto the base overview scene. 
+We require that the scene be orthorectified so that the relative distances between 
+features are preserved and georeferenced, so that the overview image can be 
+incorporated into Geographic Information Systems (GIS) for further intrepretation, 
+analysis, and combining with other data sources. We also wish to provide an 
+analysis of the images in the form of ice coverage. This is important both for 
+scienctific enquiries and for ship operations. Considering the aforementioned goals 
+and challenges, we address and solve the three following problems: 
+\begin{itemize}
+    \item{Segmenting sea ice from water and other objects to reduce false matches 
+        while providing ice coverage information at the same time. }
+    \item{How to exploit metadata from the UAV to speed up image matching and 
+            registration by reducing the search space of overlapping images and by 
+            pre-aligning images so that low-cost feature descriptors can be used for 
+            matching.}
+    \item{Aligning images when metadata is not available by escalating feature 
+            extraction complexity in regions with poor features.
+    This iterative scheme adds additional complex only as needed, using fast descriptors when possible and slower, more robust methods only when needed. 
+    }
+\end{itemize}
 
-
-\section{Related Work}
-
-Aerial photography has been used to gain a greater viewpoint of the world and 
-has been used extensively reconassance, agriculture, and science. 
-Historically, images were captured on air balloons and airplanes and then printed 
-and aligned by hand. In modern times, digital cameras and smartphones are capable of 
-automatically stitching panoramas on a small platform. 
-There exists a large and robust body of work for creating mosaics from digital photographs
-\cite{Milgram75, Milgram77, Szeliski97, Shum00, Marcon13,   
-Brown03, Brown07, Autopano, PhotoScan }, video \cite{Szeliski96, Steedly05} and for full 3D 
-reconstruction \cite{Morimoto97, Shum-3D98}. These methods are more fully 
-reviewed in \cite{Prathap16, Zitova03}.
-
-How do satellite images over water get mosaiced ?
-Can you treat ice like grayscale text?
-\section{Background}
-
-Early work in digital mosaicing generally fell into two camps, 
-direct and feature based. Direct methods attempt to use correlations 
-over the entire image to find overlapping regions in images and can be
-slow and memory intensive \cite{Lucas81, Barnea72, Szeliski95, Szeliski97, Shum-local98, Irani00}.  Feature
-based methods extract interesting regions (such as lines or edges) and
-measures the similarity of these regions to determine overlaps
-with less computational cost than the direct method 
-\cite{Tuytelaars08, Forstner86, Lowe99, Brown03, Hu06, Elibol08}. 
-These are features are locations in the image in which we expect will be 
-easy to match with overlapping images. The direct methods uses all available data 
-from each image of video frame and is heavily dependent on illumination. 
-Feature-based methods utilize interesting parts of the image, such as corners, 
-lines, or blobs that are extracted from each image to find overlapping regions 
-between images .
-Feature based methods will be further investigated and compared in Section \ref{sec:features}.
-
-Many researchers and engineers have utilized UAVs to gather images to form large-scale 
-photo mosaics \cite{ Caballero07, Yahyanejad10, Cheng10, Pritt14, Kekec14, Prasad16, Vousdoukas11, Wang11}.
-Images collected with a UAV can often be quickly, but roughly  aligned 
-using data from sensors such as Global Positioning System (GPS) points and 
-Intertial Measurement Unit (IMU) estimates.
-However, these measurements are typically not 
-accurate or reliable enough to generate a visually appealling image. 
-Instead, most approaches for mosaicing UAV images is to extract common 
-features between consecutive images to infer the motion between images.
-This approach requires some degree of overlap between images and significantly 
-higher computing requirments than a simple alignment based on sensors, but it 
-produces much more accurate results. 
-
-\section{Aerial Mosaics}
-
-TODO: talk about matching then registration
-translational motion model that changes point of view.
-Mosaics with extended field of view benefit 
-from the relatively large and equal distance to the scene in each image. 
-How to recover mosaic with 3D rotations rather than 8 parameter planer 
-perspective transforms \cite{Szeliski97}
-Registration \cite{Barnea72, Shum-local98, Sawhney99}
-However, our experminents indicate that these packages were not 
-reliable for developing mosaics with sea ice 
-data. The large volume of images with poor features that results from a typical  UAV sea 
-ice survey seemed to incapacitate the algorithms available in commercial software.
-When the surveys were divided 
-into geographic batches, 
-stitching and warping errors typically resulted from the accuracy of feature 
-matching or the projection of object height. 
-Flaten discussed mosaicing sea ice images for the purpose of UAV navigation in \cite{Flaten-thesis15}, 
-but, was unable to demonstrate results using field data. 
-TODO: What does NOAA do? - by hand?
-The  approach discussed in this paper assumes that the scene lies on a 
-planar surface, as sea ice typically does, 
-and utilizes knowledge about the structure of the survey to reduce 
-the search space.
-
-In the remaining paragraphs we discuss how different researchers approached 
-similar problems in mosaicing images from difficult datasets. 
-
-Prasad, et al investigated the problem of developing mosaics in quadcopter surveys 
-with gaps in features using imu information to improve convergence time.
-The approach was demonstrated on building walls with only small regions (paintings) 
-that provided keypoints\cite{Prasad16} 
-\section{Underwater Mosaics}
-
-Underwater scenes resemble ice scenes in that they can both be featureless and 
-large datasets. In 1996, Fleischer introduced video mosaicing underwater for arbitray 
-\cite{Fleischer96}. In 2003, Pizarro introduced a zernike-feature based 
-approach to mosaic large scale featureless 
-scenes underwater with lighting correction \cite{Pizarro03}. 
-Large area addition aided by navigational sensors 
-to generate 3D submaps that are merged using bundle adjustment \cite{Pizarro04}.
-MATISSE, released 
-in 2004 also provides mosaicing capability to seabed videos with navigation data
-in conjunction with ArcView\cite{Vincent03, Vincent04}. 
-TODO: read \cite{Eustice02, Ferrer07, Fleischer96, Vincent03, Vincent04} 
-In 2013 LAPM was 
-introduced to provide a general tool for underwater mosaicing for end-user scientists 
-in Matlab \cite{Marcon13}. It uses an open-source implementation of 
-SIFT features to match images in addition to track information. 
-Parallax free underwater \cite{Nagaraja14}
-
-*****
-n a 2D image element, which stores a color for each pixel, additional data is stored in the alpha channel with a value between 0 and 1. A value of 0 means that the pixel does not have any coverage information and is transparent; i.e. there was no color contribution from any geometry because the geometry did not overlap this pixel. A value of 1 means that the pixel is opaque because the geometry completely overlapped the pixel.
-****
- globally consistent mosaic uses all overlap information, including overlap from images that are not consecutive in time
-
-\section{Dynamic Mosaics}
-Small dynamic scene mosaics have been tackled in \cite{Fitzgibbon01, Rav-Acha07, Davis98, Uyttendaele01}. 
-However, our approach was to use a simpler, masking scheme to bar the feature 
-extraction algorithm from extracting keypoints from the dynamic portions of our 
-images. This is similar to the approach taken by Vousdoukas to mask sea and sea foam
-from shoreline images captured form an UAV in which he 
-manually selecting pixels associated with the 
-sea and foam and thresholding based on these intensities \cite{Vousdoukas11}. Because 
-Vousdoukas' mosaic was created along the shoreline, he was able to use 
-interesting keypoints from the shoreline to complete the mosaic using SIFT features. 
-
-ICEBERGS
-https://brage.bibsys.no/xmlui/bitstream/handle/11250/2354133/13934_FULLTEXT.pdf?sequence=1&isAllowed=y
-
-
-
-The main goal of this
-thesis is to develop methods for mosaicking of individual aerial images taken from
-homogeneous or heterogeneous sensors on small-scale UAVs. The mosaicking of images
-taken in such scenarios are challenging as compared to panoramic construction
-or other mosaicking methods such as satellite image mosaicking. When flying with
-UAVs at a relatively low altitude (below 100m), non-planar objects on the ground
-make the feature matching and image registration more di!cult.
-
-Discussed how to measure error in underwater mosaics using vehicle navigation 
-data \cite{Roman01}.
-
-MEASURE CHANGE vent growth \cite{Bodenmann14}
-
-
-Prathap gives a thorough review of the current state of mosaicing \cite{Prathap16}. 
-
-\begin{figure}
-    \centering
-    \begin{minipage}{.5\textwidth}
-        \centering
-        \includegraphics[width=.9\linewidth]{no_features.jpg}
-        \captionsetup{width=0.9\linewidth}
-        \captionof{figure}{A typical image of sea ice captured from a UAV with few features and homogoneous texture. }
-         \label{fig:no_features}
-     \end{minipage}%
-     \begin{minipage}{.5\textwidth}
-         \centering
-        \includegraphics[width=.9\linewidth]{good_features.jpg}
-        \captionsetup{width=0.9\linewidth}
-        \captionof{figure}{A sea ice image with many corners and distinctive  features to use for feature matching. }
-             \label{fig:good_features}
-      \end{minipage}
-\end{figure}
-
-
-
-\section{Thesis Overview}
+\section{Contribution}
+This process has been tested on data collected off of an ice breaker working in 
+the Artic in various ice conditions. 
 
 The problem of image mosaicing can be broken several steps. The first step 
 is to identify images that have 
@@ -347,14 +264,227 @@ regions align}
 \item{Paste warped images onto the common scene and blend neighboring pixels}
 \end{enumerate}
 
-The approach disucussed in this thesis 
-is purely image based and does not neccessitate the use 
-of navigation data, however, neighboring images in 
-time are searched first for overlap to improve convergence time.
+
+\section{Outline}
+The remainder of this thesis is organized as follows. Chapter \ref{chap:background} 
+provides a history of image mosaicking and stitching approaches. 
+Chapter \ref{chap:related} discusses related work in sea ice and image mosaicking 
+tasks of aerial and underwater imagery. In Chapter \ref{chap:features} we discuss 
+the process of assessing feature descriptor performance on this dataset and present 
+performance results of common approaches. Segmenting sea ice from the surrounding 
+water and size estimation considered in Chapter \ref{chap:segmentation}. Image matching, 
+registration, and blending is presented in Chapter \ref{chap:registration}. In Chapter 
+\ref{chap:results} sample results are provided with a discussion and evaluation 
+of the approach. Finally, in Chapter \ref{chap:conclusion}, a summary and goals 
+for future work is presented. 
+
+\chapter{Background}
+\label{chap:background}
+We assume that the readers have basic knowledge of digital photography and 
+aerial vehicles, however basic concepts are summarized here before 
+delving into more complicated computational concepts. 
+
+\section{Digital Imaging}
+Digital cameras are convienent sensors for capturing and recording a specific 
+range of electromagnetic radiation. The images that we are working with in this 
+thesis are from the visible spectrum and represent images as they are seen 
+with the human eye, but often other ranges of the spectrum 
+are used in remote monitoring. 
+
+\section{Remote Sensing}
+Remote sensing is the term used to describe the process of obtaining data without 
+physical contact. The field of remote sensing, like most modern fields that 
+are associated with data, has experienced an explosion in the amount, quality, and 
+accessibility of data. Traditional remote sensing platforms like airplanes and 
+satelites are being augmented with low-cost UAVs making data production and analysis 
+accessible to hobbyist and professionals alike. In addition to sensors working through 
+the air, underwater platforms like Remotely Operated Vehicles (ROVs) and Autonomous 
+Underwater Vehicles (AUVs) are also providing remote sensing through water 
+with sound and images. 
+With the balloon in accessibility of data have come 
+automated methods for interpreting the data including, but not limited to  mosaicking. 
+In addition, segmentation and classification are two additional tasks that 
+simplify the data into categories and allow for more complex data analysis. 
+
+\section{Image Mosaicking}
+Aerial photography has been used to gain a greater viewpoint of the world and 
+has been used extensively reconassance, agriculture, and science. 
+Historically, images were captured on air balloons and airplanes and then printed 
+and aligned by hand. In modern times, digital cameras and smartphones are capable of 
+automatically stitching panoramas on a small platform. 
+There exists a large and robust body of work for creating mosaics from digital photographs
+\cite{Milgram75, Milgram77, Szeliski97, Shum00, Marcon13,   
+Brown03, Brown07, Autopano, PhotoScan }, video \cite{Szeliski96, Steedly05} and for full 3D 
+reconstruction \cite{Morimoto97, Shum-3D98}. These methods are more fully 
+reviewed in \cite{Prathap16, Zitova03}.
+
+Early work in digital mosaicking generally fell into two camps,
+direct and feature based. Direct methods attempt to use correlations 
+over the entire image to find overlapping regions in images. This involes 
+a computation across all of the pixels in the image and can be
+slow and memory intensive \cite{Lucas81, Barnea72, Szeliski95, Szeliski97, Shum-local98, Irani00}.  
+Feature
+based methods, on the other hand, attempt to only work with interesting regions 
+of the image, such as lines or edges. These interesting regions, called \emph{features} 
+or \emph{keypoints}, are extracted using a \emph{feature descriptor}. The descriptors 
+from images are then compared resulting in a measure of similarity between the 
+descriptors of the images. 
+Feature based methods are typically the modern approach because they are generally less computationally intensive than direct methods and perhaps more importantly, the feature descriptors can be developed to be invariant to image tranformations \cite{Tuytelaars08, Forstner86, Lowe99, Brown03, Hu06, Elibol08}. 
+
+These are features are locations in the image in which we expect will be 
+easy to match with overlapping images. The direct methods uses all available data 
+from each image of video frame and is heavily dependent on illumination. 
+Feature-based methods utilize interesting parts of the image, such as corners, 
+lines, or blobs that are extracted from each image to find overlapping regions 
+between images .
+Feature based methods will be further investigated and compared in Section \ref{sec:features}.
+
+\chapter{Related Work}
+\label{chap:related}
+Many researchers and engineers have utilized UAVs to gather images to form large-scale 
+photo mosaics \cite{ Caballero07, Yahyanejad10, Cheng10, Pritt14, Kekec14, Prasad16, Vousdoukas11, Wang11, Wang14}.
+Images collected with a UAV can often be quickly, but roughly  aligned 
+using data from sensors such as Global Positioning System (GPS) points and 
+Intertial Measurement Unit (IMU) estimates.
+However, these measurements are typically not 
+accurate or reliable enough to generate a visually appealling image. 
+Instead, most approaches for mosaicing UAV images is to extract common 
+features between consecutive images to infer the motion between images.
+This approach requires some degree of overlap between images and significantly 
+higher computing requirments than a simple alignment based on sensors, but it 
+produces much more accurate results. 
+
+
+TODO: talk about matching then registration
+translational motion model that changes point of view.
+Mosaics with extended field of view benefit 
+from the relatively large and equal distance to the scene in each image. 
+How to recover mosaic with 3D rotations rather than 8 parameter planer 
+perspective transforms \cite{Szeliski97}
+Registration \cite{Barnea72, Shum-local98, Sawhney99}
+However, our experminents indicate that these packages were not 
+reliable for developing mosaics with sea ice 
+data. The large volume of images with poor features that results from a typical  UAV sea 
+ice survey seemed to incapacitate the algorithms available in commercial software.
+When the surveys were divided 
+into geographic batches, 
+stitching and warping errors typically resulted from the accuracy of feature 
+matching or the projection of object height. 
+Flaten discussed mosaicing sea ice images for the purpose of UAV navigation in \cite{Flaten-thesis15}, 
+but, was unable to demonstrate results using field data. 
+TODO: What does NOAA do? - by hand?
+The  approach discussed in this paper assumes that the scene lies on a 
+planar surface, as sea ice typically does, 
+and utilizes knowledge about the structure of the survey to reduce 
+the search space.
+
+
+In the remaining paragraphs we discuss how different researchers approached 
+similar problems in mosaicing images from difficult datasets. 
+
+Prasad, et al investigated the problem of developing mosaics in quadcopter surveys 
+with gaps in features using imu information to improve convergence time.
+The approach was demonstrated on building walls with only small regions (paintings) 
+that provided keypoints\cite{Prasad16} 
+
+Underwater scenes resemble ice scenes in that they can both be featureless and 
+large datasets. In 1996, Fleischer introduced video mosaicing underwater for arbitray 
+\cite{Fleischer96}. In 2003, Pizarro introduced a zernike-feature based 
+approach to mosaic large scale featureless 
+scenes underwater with lighting correction \cite{Pizarro03}. 
+Large area addition aided by navigational sensors 
+to generate 3D submaps that are merged using bundle adjustment \cite{Pizarro04}.
+MATISSE, released 
+in 2004 also provides mosaicing capability to seabed videos with navigation data
+in conjunction with ArcView\cite{Vincent03, Vincent04}. 
+TODO: read \cite{Eustice02, Ferrer07, Fleischer96, Vincent03, Vincent04} 
+In 2013 LAPM was 
+introduced to provide a general tool for underwater mosaicing for end-user scientists 
+in Matlab \cite{Marcon13}. It uses an open-source implementation of 
+SIFT features to match images in addition to track information. 
+Parallax free underwater \cite{Nagaraja14}
+Quantify scale changes and lighting changes 
+medium resolution 800x600 pixels 
+***
+For example, the edge-based region
+detector requires curves, and if none of sufficient length
+occur in a particular image, then no regions of this type
+can be detected.
+However, this variety is also a virtue: the different
+detectors are complementary. Some respond well
+to structured scenes (e.g. MSER and the edge-based
+regions), others to more textured scenes (e.g. HarrisAffine
+and Hessian-Affine)
+
+
+Also the size of the detected regions
+significantly varies depending on the detector. Typically,
+Harris-Affine, Hessian-Affine and MSER detect
+many very small regions
+
+Larger regions typically have a
+higher discriminative power, as they contain more information,
+which makes them easier to match, at the
+cost of a higher risk of being occluded or not covering
+a planar part of the scene.
+***
+
+*****
+n a 2D image element, which stores a color for each pixel, additional data is stored in the alpha channel with a value between 0 and 1. A value of 0 means that the pixel does not have any coverage information and is transparent; i.e. there was no color contribution from any geometry because the geometry did not overlap this pixel. A value of 1 means that the pixel is opaque because the geometry completely overlapped the pixel.
+****
+ globally consistent mosaic uses all overlap information, including overlap from images that are not consecutive in time
+
+Small dynamic scene mosaics have been tackled in \cite{Fitzgibbon01, Rav-Acha07, Davis98, Uyttendaele01}. 
+However, our approach was to use a simpler, masking scheme to bar the feature 
+extraction algorithm from extracting keypoints from the dynamic portions of our 
+images. This is similar to the approach taken by Vousdoukas to mask sea and sea foam
+from shoreline images captured form an UAV in which he 
+manually selecting pixels associated with the 
+sea and foam and thresholding based on these intensities \cite{Vousdoukas11}. Because 
+Vousdoukas' mosaic was created along the shoreline, he was able to use 
+interesting keypoints from the shoreline to complete the mosaic using SIFT features. 
+
+
+
+The main goal of this
+thesis is to develop methods for mosaicking of individual aerial images taken from
+homogeneous or heterogeneous sensors on small-scale UAVs. The mosaicking of images
+taken in such scenarios are challenging as compared to panoramic construction
+or other mosaicking methods such as satellite image mosaicking. When flying with
+UAVs at a relatively low altitude (below 100m), non-planar objects on the ground
+make the feature matching and image registration more di!cult.
+
+Discussed how to measure error in underwater mosaics using vehicle navigation 
+data \cite{Roman01}.
+
+
+
+Prathap gives a thorough review of the current state of mosaicing \cite{Prathap16}. 
+
+\begin{figure}
+    \centering
+    \begin{minipage}{.5\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{no_features.jpg}
+        \captionsetup{width=0.9\linewidth}
+        \captionof{figure}{A typical image of sea ice captured from a UAV with few features and homogoneous texture. }
+         \label{fig:no_features}
+     \end{minipage}%
+     \begin{minipage}{.5\textwidth}
+         \centering
+        \includegraphics[width=.9\linewidth]{good_features.jpg}
+        \captionsetup{width=0.9\linewidth}
+        \captionof{figure}{A sea ice image with many corners and distinctive  features to use for feature matching. }
+             \label{fig:good_features}
+      \end{minipage}
+\end{figure}
+
+
+
 
 
 \chapter{Feature Detection and Matching}
-
+\label{chap:features}
 The main problem in generating a map from ice imagery is 
 finding overlapping regions between neighboring images and pasting them together 
 with the correct rotation, translation, and scaling between images. 
@@ -368,6 +498,35 @@ that has led to a wide variety of feature-based algorithms. Feature based approa
 the errors are uncorrelated between features so that statistical independance 
 can be assumed and bundle adjustment is available over long sequences. Features 
 allow us to use less noisy data to compute homography. 
+****
+If the scene is planar (which is, in general, a valid ap- proximation when the ratio between the distance to the scene and the ground elevation is high \cite{pizarro03}, a set of matches between two views can be used to estimate a homographic model for the apparent image motion. This model can be composed with the estimated motion of the rest of images in order to build the mosaic.
+
+Acompletehomographyhas8degreesoffreedom(asitis defineduptoascalefactor).Thedegreesoffreedomcanbe reducedbyfixingsomeoftheparametersofthe3x3matrix. ThemodelsusedarethedefinedbyHartleyin Euclidean, Affine and Complete Homographic models, which have 4, 6 and8degreesoffreedomrespectively
+The percentage of successful matches obtained by the point tracker is used to have an estimation about the level ofthehierarchywherethehomographycomputationshould start.Thesepercentagethresholdswereobtainedempirically byprocessinghundredsofaerialimages.Eachlevelinvolves thefollowingdifferentsteps:
+.Complete homography. Least median of squares (LMedS) is used for outlier rejection and a M-Estimator to compute the final result. This model is used if more than the 65\% of the matches are successfully tracked.
+. Affine homography. If the percentage of success in thetrackingstepisbetween40\% and65\%,thenthe LMedS isnotused,giventhereductioninthenumber ofmatches.A relaxedM-Estimator(softpenalization) is carried out to compute the model.
+
+Euclidean homography. If the percentage is below 40\%, the set of data is too noisy and small to apply non- linear minimizations. The model is computed using least-squares.
+
+
+\cite{Caballero07}
+
+images with excessive overlap are not used in the final mosaic as their 
+inclusion provides no benefit and requires unnecessary computation.
+****
+pre-rotate and scale based on a reference image
+ By using the homography obtained from the
+ first step, we roughly align the UAV image with the global
+ map. The first step provides us an initialization which basically
+ compensates for the
+ \cite{Lin07}
+ ***
+
+
+****
+ (Qian et al., 2000) demonstrates the use of vehicle rotation rate information from gyros mounted to the vehicle to assist in the process of matching camera features from frame to frame.
+
+
 
 Most 
 methods utilize extract intersting points from overlapping images, 
@@ -522,17 +681,14 @@ in \cite{Bekele13}.
 %$\rho$ is the magnitude of the vector from the origin to the point $(x,y)=x^2+y^2$
 %$\theta$ is the angle between the vector and the x-axis in a counter-clockwise direction
 
-*********
-Features with a low successes/attempts ratio in
-matching — in practice 0.5 — are deleted from the
-map if at least 10 matches have been attempted. This
-simple map maintenance mechanism allows deletion of
-non-trackable features — for example those detected on
-moving objects or people. Non persistent static scene
-features (for instance caused by reflections) are also removed.
-*************
-\chapter{Segmentation}
 
+Features with a low success ratio in matching (about 0.5) are deleted from the 
+map if at least 10 matches have been attempted. Mapmaintence allows deleting of non 
+trackable features - for instance those captured on moving objects such as 
+waves or people. 
+
+\chapter{Segmentation}
+\label{chap:segmentation}
 Image stitching techniques utilize features that are consistent amongst 
 overlapping images, however, UAV images are captured serially, so nonstationary 
 features in the images are subject to change between images. In sea ice imagery, 
@@ -557,7 +713,7 @@ Show examples where bad keypoints are detected
 
 
 \chapter{Feature Matching}
-
+\label{chap:features}
 Periodicity leads to a large number of outliers in the match points
 
 Our approach utilizes 
@@ -575,7 +731,8 @@ required to solve for eight unknowns in the 2D projective transformation.
 The RANSAC algorithm is used to perform filter poor matches. RAndom SAmple Consensus, 
 select one match, count inliers
 
-\chapter{Registration}
+\chapter{Image Registration}
+\label{chap:registration}
 Parametric transformations apply a global deformation to an image that is 
 defined by a small number of parameters depending on the transformation 
 chosen. In near-flat  areas,  the 
@@ -605,7 +762,9 @@ The eight paramerters that define the transformation of the an image onto a
 reference image is estimated by approximating perspective. 
 
 *********
-A Homography is a transformation ( a 3×3 matrix ) that maps the points in one image to the corresponding points in the other image.
+
+A Homography is a transformation a 3 by 3 matrix that maps the points in one image to
+the corresponding points in the other image.
 Global registration is simplified by solving for homographies from image to mosaic and 
 not the position of features. ******** For pairwise registration, Can use least 
 suares to solve for homography because our use of projective models have 
@@ -718,9 +877,10 @@ Strong color changes,
 show high spatial frequency and are fused 
 over a small area. 
 
-\chapter{Assumptions and Approach}
 
-\chapter{Experiments}
+
+\chapter{Experiments and Results}
+\label{chap:results}
 demo 
 translation - minimal overlap, detected that there was no rotation or scaling.
 rotation   - what angle limit?
@@ -731,8 +891,6 @@ demo
 \subsection{Aerial Surveys}
 
 \subsection{Image Patches}
-
-\chapter{Results}
 \section{Error Metrics} 
 standard measurments, cross correlation between images - 
 speed ...
@@ -745,10 +903,7 @@ pinhole camera. Simple translations produce the resulting image. Another test
 introduced rotation and scaling into each sub-image. 
 
 \chapter{Conclusion and Future Work}
-\subsection{UAV Sensor Integration}
-
-\section{Side Scan Sonar}
-end and receive sound signals over a broad swath of sea floor. The resulting data consists of a pattern of signal returns of variable strength which provide a picture of the sea floor’s composition. 
+\label{chap:conclusion}
 
 
 \pagebreak{}
