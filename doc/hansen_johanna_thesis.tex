@@ -59,8 +59,12 @@
 
 \begin{document}
 \bibliographystyle{acm}
-\committee{Sos Agaian, Ph.D., Chair}{Prof Hanumant Singh, Ph.D.}{Prof. C, Ph.D.}{Prof. D, Ph.D.}{Prof. E, Ph.D. }
-
+%\committee{Sos Agaian, Ph.D., Chair}{Prof Hanumant Singh, Ph.D.}{Prof. C, Ph.D.}{Prof. D, Ph.D.}{Prof. E, Ph.D. }
+\supervisor{Sos Agaian, Ph.D.}
+\cosupervisor{Hanumant Singh}
+\committeeC{Prof A}
+\committeeD{Prof A}
+\committeeE{Prof A}
 
 \informationitems{Master of Science in Electrical Engineering}{M.Sc.}{Department of Electrical Engineering}{College of Engineering}{December}{ 2016 }
 
@@ -394,6 +398,7 @@ flight, while others rely solely on remote control by humans.
 Nearly all systems will have some sensing capabilities necessary for navigation, 
 though the accuracy and capabilities of these devices can vary widely and 
 have enormous impact on the quality of flight and data products captured.
+
 \subsection{Global Positioning System (GPS) Receivers}
 The Global Positioning System, frequently shortened to GPS, is a system which 
 provides location and time when a compatible receiver is within view 
@@ -415,7 +420,6 @@ thesis are from the visible spectrum and represent images as they are seen
 with the human eye. 
 TODO: talk about focal length - lens properties, resolution
 
-TODO: Stereo problems
 The accuracy of stereo degrades as the distance to the scene increases and is 
 lower with a larger baseline distance. A large baseline is not feasible on many
 platforms, especially airborne systems. Rather than using two fixed cameras 
@@ -429,29 +433,42 @@ viewpoint disparity in traditional stereo vision systems. Determining the overla
 systems, because there is often a larger difference in perspective.  \cite{Olson10}
 
 \chapter{Sea Ice Detection}
-In addition to aerial imagery, sea ice can also be quantified from underwater sensors, 
-typically sonars that measure physical properties of the ice. 
-To obtain valid measurements from under the ice, underwater vehicles are typically 
-deployed. These measurements can provide valuable information about the 
-characteristics of ice, especially for scientific purposes, but are resource
-intensive to operate and are generally out of scope for typical polar expeditions. 
+\begin{figure}
+    \centering
+    \begin{minipage}{.5\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{pancakes.jpg}
+        \captionsetup{width=0.9\linewidth}
+        \captionof{figure}{A close photo of pancakes, small pieces of ice with raised edges from bumping one another. }
+         \label{fig:pancake}
+     \end{minipage}%
+     \begin{minipage}{.5\textwidth}
+         \centering
+        \includegraphics[width=.9\linewidth]{cakes.jpg}
+        \captionsetup{width=0.9\linewidth}
+        \captionof{figure}{An example of a large ice cakes. For reference, the pictured ship, the R/V Sikuliaq, is 79.6 m in length.}
+             \label{fig:cake}
+      \end{minipage}
+\end{figure}
+
 
 
 The Manual of Ice (MANICE) provided by the Canadian Ice Service, describes various 
 types of ice discussed throughout this paper \cite{CanadianIceService}. Below we provide 
 a brief introduction to several forms of ice included in our experiments. 
 \begin{itemize}
-    \item{\bf{Pancake ice} is defined as predominetly 
+    \item{\textbf{Pancake ice} is defined as predominetly 
 circular pieces of ice the is 30 cm to 3 m in diameter. The edges are typically 
-raised from the pieces striking against one another.}
-\item{An \bf{ice cake} is a flat piece that is less than 20 m across. }
-\item{An \bf{ice floe} is a flat piece of ice that is 20 m or more across. Small floes are 
-less than 100 m and giant floes are those pieces that are greater than 10 km across. 
-Ice concentration is expressed as a ratio of the area of the water surface 
-covered by ice over the entire area. }
+raised from the pieces striking against one another. See Figure \ref{fig:pancake} for reference. }
+\item{An \textbf{ice cake} is a flat piece that is less than 20 m across. See Figure \ref{fig:cake} for reference. }
+\item{An \textbf{ice floe} is a flat piece of ice that is 20 m or more across. Small floes are 
+    less than 100 m and giant floes are those pieces that are greater than 10 km across. }
+\item{\textbf{Slush} is snow which is saturated with water} 
 \end{itemize}
 
 
+Ice concentration is expressed as a ratio of the area of the water surface 
+covered by ice over the entire area.
 Much of the published work concerning the segmentation of sea 
 ice from water is performed on data collected 
 from synthetic apertaure radar images collected from satellites. 
@@ -463,6 +480,20 @@ covered briefly in the following section.
 
 
 \section{High Altitude Sea Ice Segmentation}
+
+
+\begin{figure}
+\label{fig:eggcode}
+\centering
+\includegraphics[width=.9\linewidth, height=0.6\linewidth]{egg_code.jpg}
+  \captionsetup{width=.9\linewidth}
+  \captionof{figure}{
+  Ice estimates over the Hudson Bay region of Canada produced by the Canadian Ice Service \cite{CanadianIceService}. These reports are produced daily in season, subject to atmospheric and sea conditions. }
+\end{figure}
+
+
+
+
 Today, the most common technique for monitoring sea ice is through data obtained 
 by satellites.  In addition to cameras operating in the visual spectrum,
 sea ice is also frequently monitored by active sensors which can 
@@ -483,7 +514,7 @@ Their team of experts provide regular ice assesments over the Artic.
 The agency also produces daily ice charts, which are an estimate of the current ice 
 conditions based on satelite data that is augmented with aerial and ship data. 
 Regions with visually homogenous ice according to human experts are assigned with 
-"egg code" symbols (see Figure \ref{fig:eggcode}) to summarize the region's ice characteristics with details 
+"egg code" symbols (see Figure \ref{fig:eggcode} ) to summarize the region's ice characteristics with details 
 such as ice floe, ice concentration, and ice types \cite{Clausi08, CanadianIceService}. 
 The process of developing the ice charts by hand is a demanding task. Many attempts have 
 been made to automate this process, though none have been successfully used in full 
@@ -505,7 +536,7 @@ This simple approach, as one may suspect, is sensitive to speckle noise. Other p
 clustering \cite{Remund98}. Texture-based algorithms  approaches use texture features which are functions of neighboring pixels. Many use 
 the grey-level co-occurence matrix (GLCM) introduced by Haralick et al. \cite{Haralick73} and used extensively by others including Soh in \cite{Soh98} and Clausi \cite{Clausi01, Clausi03}. Markov Random Fields, described in \cite{Li95MRF} was used by Deng and Clausi in \cite{Deng04, Deng05}, Yang and Clausi in \cite{Yang09} and by Clausi in \cite{Clausi01}. MRFs base the pixel segmentation class of each pixel on its neighboring pixel values and on the conditional segment probabilities. 
 
-In \cite{Clausi03}, the author considers practical segmentation of SAR sea ice for the Canadian Ice Agency and demonstrates segmentation using a finite gamma mixture model, K-means clustering, binary hierarchical K-means iterative Fisher, and Markov random field modeling and shows good results with the gamma mixture model followed by a MRF label model to discriminate between ice and water. 
+In \cite{Clausi03}, Clausi considers practical segmentation of SAR sea ice for the Canadian Ice Agency and demonstrates segmentation using a finite gamma mixture model, K-means clustering, binary hierarchical K-means iterative Fisher, and Markov random field modeling and shows good results with the gamma mixture model followed by a MRF label model to discriminate between ice and water. 
 Xu et al. \cite{Xu14} use kernal principle component analysis (KPCA) 
 local texture feature model to segment sea ice from SAR data efficiently despite speckle noise for operational segmentation. 
 In conjunction with the Canadian Ice Service, Clausi presented in \cite{Clausi08} MAp-Guided Ice 
@@ -526,17 +557,6 @@ proportions.  Wang et. al \cite{Wang16} demonstrated pixel-wise segmentation
 to with absolute mean error of less than 10\%  when compared to human experts using 
 deep CNNs in a small case study. 
 
-\begin{figure}
-    \label{fig:eggcode}
-\centering
-\includegraphics[width=.9\linewidth, height=0.6\linewidth]{egg_code.jpg}
-        \captionsetup{width=.9\linewidth}
-        \captionof{figure}{
-            Ice estimates over the Hudson Bay region of Canada produced by the 
-        Canadian Ice Service. These reports are produced daily (season dependent) by the agency, subject to atmospheric and sea conditions. \cite{CanadianIceService}}
-\end{figure}
-
-
 %Manual of ICE
 %https://www.ec.gc.ca/glaces-ice/default.asp?lang=En&n=2CE448E2-1
 
@@ -544,20 +564,7 @@ deep CNNs in a small case study.
 
 
 
-\subsection{Low-Altitude Sea Ice Segmentation}
-
-Qin et al. \cite{Qin13} operates on high resolution images.  first determines seperate ice floes using the Otsu threshold algorithm to 
-binarize the image. Then watershed segmentation is used to segment indiviual ice floes. 
-This study was unable to provide ground-truth results for pixelwise accuracy. 
-
-Lagunov et al. \cite{Lagunov14} describes the value of sea ice monitoring and provided an 
-overview of useful sensor platforms including the UAV and provides a thorough description 
-of the many considerations of sensors and operational constraints involved in 
-deploying a UAV for ice observation. 
-This paper also demonstrates the usefullness of the platform with a microwave sensor 
-and camera over an ice covered river, but did not cover problems related to organizing 
-the imagery or automatically evaluating ice coverage.
-
+\subsection{Low-Altitude Sea Ice Observations}
 
 Skjetne et al. proposed utilizing UAVs for drift prediction to aid ships 
 attempting to maintain Dynamic Positioning (DP) in ice-laden waters \cite{Skjetne14}.
@@ -582,14 +589,14 @@ of monitoring sea ice concentration by thresholding grayscale imagery of sea ice
 He also estimated floe size, by finding closed boundaries around individual 
 ice flows using the Gradient Vector Flow Snake algorithm to detect closed curves. 
 
-Flaten discussed mosaicing sea ice images for the purpose of UAV navigation in \cite{Flaten-thesis15}, 
-but, was unable to demonstrate results using field data. 
-Demonstrated sea ice segmentation on data collected from a UAV
-and presented results from Otsu thresholding but lacked ground 
-truth. This project also attempted to provide ice density 
-estimation by segmenting the image to produce an occupancy grid 
-map estimation of sea ice density. 
 
+Lagunov et al. \cite{Lagunov14} describes the value of sea ice monitoring and provided an 
+overview of useful sensor platforms including the UAV and provides a thorough description 
+of the many considerations of sensors and operational constraints involved in 
+deploying a UAV for ice observation. 
+This paper also demonstrates the usefullness of the platform with a microwave sensor 
+and camera over an ice covered river, but did not cover problems related to organizing 
+the imagery or automatically evaluating ice coverage.
 
 Billington proposed the use of UAVs for shape estimation of icebergs at sea
 with UAVs equiped with imaging systems and provided a description of requirements 
@@ -599,24 +606,37 @@ surface and demostrated his effort on a small sample size that made it difficult
 evaluate. 
 
 
-\cite{Zhang14}
-\cite{Zhang15}
+Zhang et al. has published a number of papers on sea ice segmentation and floe 
+detection. In \cite{ Zhang13}, Zhang operates on high resolution images by first 
+determining seperate ice floes using the Otsu \cite{OTSU} threshold algorithm to 
+binarize the image. Then a watershed segmentation is used to segment indiviual ice floes. 
+Both \cite{Blunt12, Zhang13} use watershed algorithms to segment ice images,
+but found that oversegmentation reduced the accuracy.
+Over-segmentation is caused by the structure of the watershed algorithm. The
+watershed algorithm depends on the local minima  for the starting point. When
+there are multiple local minima in the 
+image, like is often the case in sea ice imagery, over-segmentation occurs. 
+Zhang, in \cite{Zhang13} corrects this for the watershed algorithm
+by using a combination of concave detection and neighboring region merging
+to isolate floes. Blunt, in 
+ \cite{Blunt12} simply removes over-segmented 
+lines manually. 
 
-TODO: Phd thesis \cite{Haugen14}
-\cite{Yu06}
-\cite{Xu14}
-\cite{Wang16}
-\cite{Deng05}
-\cite{Clausi08}
-\cite{Moen15}
-\cite{Clausi03}
+In \cite{Zhang14} discussed Otsu thresholding and k-means clustering
+\cite{MacQueen67} and demonstrated how k-means could be used to better segment images with several types of ice and water. Zhang then demonstrates segmentation of floes using a Gradient Vector Flow Snake Algorithm with a circular shape that deforms to 
+the floe boundary on the binary image. 
+Zhang then uses morphological cleaning to ensure completeness of the ice floe so 
+that smaller foes contained in larger floes are removed. 
+In \cite{Zhang15floe}, Zhang improves segmentation of ice floe boundaries, which can be difficult to identify when floes are touching again using the Gradient Vector Flow Snake Algorithm, but this time separating the image into 
+different layers based on ice type and sizes. 
 
-The histograms for sea ice images are generally bimodal
-Show examples where bad keypoints are detected
-
-
-
-
+Flaten discussed mosaicing sea ice images for the purpose of UAV navigation in \cite{Flaten-thesis15}, 
+but, was unable to demonstrate results using field data. 
+This project also attempted to provide ice density 
+estimation by segmenting the image to produce an occupancy grid 
+map estimation of sea ice density. 
+Flaten demonstrated Otsu thresholding segmentation on several photos collected from a UAV
+and from simulated imagery.
 
 
 
@@ -1189,7 +1209,7 @@ based on Difference of Gaussians (DOG). This algorithm, developed in 2004
 has consistently been the top performer in terms of  
 scale and rotation invariance, though it is has the highest overhead
 of the descriptors discussed. Since SIFT, many SIFT-like descriptors have been 
-introduced such as SURF \cite{Bay-SURF08}, and A-SIFT  \cite{A-SIFT} to 
+introduced such as SURF \cite{Bay-SURF08}, and ASIFT  \cite{ASIFT} to 
 reduce computation time.  
 
 
@@ -1291,9 +1311,14 @@ matching than using a single one to match an image region \cite{Alahi10}.
 %Euclidean homography. If the percentage is below 40\%, the set of data is too noisy and small to apply non- linear minimizations. The model is computed using least-squares.
 %\cite{Caballero07}
 
+\chapter{Categorizing Ice}
 
+The Jaccard index is the same thing as the Jaccard similarity coefficient. We call it a similarity coefficient since we want to measure how similar two things are.
+
+The Jaccard distance is a measure of how dis-similar two things are. We can calculate the Jaccard distance as 1 – the Jaccard index.
 
 \chapter{Description of Approach}
+
 \section{Online Approach}
 \section{Global Approach}
 This approach utilizes 

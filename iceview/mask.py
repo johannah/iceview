@@ -2,7 +2,7 @@ import numpy as np
 from skimage.transform import warp, SimilarityTransform, AffineTransform, ProjectiveTransform
 from subprocess import Popen, PIPE
 import matplotlib.pylab as plt
-import iceview.config as config
+import config
 import os
 
 from skimage.data import imread

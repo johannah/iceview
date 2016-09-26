@@ -4,7 +4,8 @@
 %%%  Author:  Prof. Weining Zhang, Feb. 2012 
 %%%  Adapted from a package written by Xu (Kevin) Su in Sept 2008 
 %%%  
-%%%  Last Updated: November 20, 2012 by Weining Zhang
+%%%  Updated: November 20, 2012 by Weining Zhang
+%%%  Last Updated: June 30, 2016 by Weining Zhang
 %%%-----------------------------------------------------------------------
 %%%
 %%%  Usage: \documentclass[12pt]{report}
@@ -12,16 +13,16 @@
 %%%         The default thesis style is for PhD Dissertation
 %%%
 %%%  This file is a LaTeX2e style file for creating documents which
-%%%  meet the Spring 2008 UTSA Graduate School dissertation guidelines.
+%%%  meet the June 2016 UTSA Graduate School dissertation guidelines.
 %%%  Note that this style file has not been tested under every
-%%%  possible configuration and no guarantees are made.
+%%%  possible configuration and no guarantee is made.
 %%%  
 %%%  Need to define the following 
 %%% \thesistitle{Thesis Title}
 %%% \thesisauthor{Author's Name}
 %%% \thesiscopyright{Optional Copyright Statement}
-%%% \thesismonth{Month}
-%%% \thesisyear{Year}
+%%% \thesismonth{Month, which should be the graduation month}
+%%% \thesisyear{Year, which should be the graduation year}
 %%% \thesisabstract{The abstract starts here. Should within one page.}
 %%% \degree{Doctor of Philosophy in Field Name}
 %%% \degreeshort{Ph.D.}
@@ -41,52 +42,36 @@
 
 \DeclareOption{phd}{%
 \def\@thesistype{DISSERTATION}%
-\def\@signature{
-\begin{flushright}
-  APPROVED BY SUPERVISING COMMITTEE:\\[4pt]
-  \rule{3.3in}{0.5pt} \\[-12pt]
-  \raisebox{0pt}{\makebox[3.3in][r]{\@committeeA}}\\[4pt]
-  \rule{3.3in}{0.5pt} \\[-12pt]
-  \raisebox{0pt}{\makebox[3.3in][r]{\@committeeB}} \\[4pt]
-  \rule{3.3in}{0.5pt} \\[-12pt]
-  \raisebox{0pt}{\makebox[3.3in][r]{\@committeeC}} \\[4pt]
-  \rule{3.3in}{0.5pt} \\[-12pt]
-  \raisebox{0pt}{\makebox[3.3in][r]{\@committeeD}} \\[4pt]
-  \rule{3.3in}{0.5pt} \\[-12pt]
-  \raisebox{0pt}{\makebox[3.3in][r]{\@committeeE}} \\[4pt]
-  Accepted:\hspace{1em}\rule{3.3in}{0.5pt} \\[-12pt]
-  \raisebox{0pt}{\makebox[3.3in][r]{Dean, Graduate School}}
-\end{flushright}
+\def\@committee{
+\begin{center}
+  COMMITTEE MEMBERS: \\
+  \@committeeA \\
+  \@committeeB \\
+  \@committeeC \\
+  \@committeeD \\
+  \@committeeE 
+  \end{center}
 }
 
 }% End PHD
 
 \DeclareOption{ms}{%
 \def\@thesistype{THESIS}%
-\def\@signature{
-\begin{flushright}
-  APPROVED BY SUPERVISING COMMITTEE:\\[4pt]
-  \rule{3.3in}{0.5pt} \\[-12pt]
-  \raisebox{0pt}{\makebox[3.3in][r]{\@committeeA}}\\[4pt]
-  \rule{3.3in}{0.5pt} \\[-12pt]
-  \raisebox{0pt}{\makebox[3.3in][r]{\@committeeB}} \\[4pt]
-  \rule{3.3in}{0.5pt} \\[-12pt]
-  \raisebox{0pt}{\makebox[3.3in][r]{\@committeeC}} \\[4pt]
-%   \rule{3.3in}{0.5pt} \\[-12pt]
-%   \raisebox{0pt}{\makebox[3.3in][r]{\@committeeD}} \\[4pt]
-%   \rule{3.3in}{0.5pt} \\[-12pt]
-%   \raisebox{0pt}{\makebox[3.3in][r]{\@committeeE}} \\[4pt]
-  Accepted:\hspace{1em}\rule{3.3in}{0.5pt} \\[-12pt]
-  \raisebox{0pt}{\makebox[3.3in][r]{Dean, Graduate School}}
-\end{flushright}
+\def\@committee{
+\begin{center}
+  COMMITTEE MEMBERS: \\
+  \@committeeA \\
+  \@committeeB \\
+  \@committeeC 
+  \end{center}
 }
 
 }% End MS
 
 
 \typeout{UTSAthesis.sty by Prof. Weining Zhang, March 2012}
-\typeout{Vertion 2.0.1 Confirm to UTSA Thesis/Dissertation Style 2011}
-\typeout{Last updated on September 23, 2012 by Weining Zhang}
+\typeout{Vertion 3.0.0 Confirm to UTSA Thesis/Dissertation Style 2016}
+\typeout{Last updated on June 30, 2016, by Weining Zhang}
 
 \ExecuteOptions{phd}
 \ProcessOptions
@@ -123,16 +108,16 @@
 \setlength{\pdfpagewidth}{8.5in}    % paper width
 \setlength{\pdfpageheight}{11in}    % paper height
 \setlength{\textwidth}{6.5in}      %
-\setlength{\textheight}{8.9in}     %
-\setlength{\oddsidemargin}{0.25in}  % left margin;
-\setlength{\evensidemargin}{0.25in} %
-\setlength{\topmargin}{0.25in}      % top margin;
+\setlength{\textheight}{9in}     %
+\setlength{\oddsidemargin}{0in}  % left margin;
+\setlength{\evensidemargin}{0in} %
+\setlength{\topmargin}{0in}      % top margin;
 \setlength{\headheight}{0.0in}      % Height of the header (the header is text that appears atop all pages)
 \setlength{\headsep}{0.0in}         % Distance from bottom of header to the body of text on a page.
 \setlength{\topskip}{0.0in}         % Distance from top of main text box to the baseline of the first line of 
                                     % text in the main text box.
-\setlength{\footskip}{0.35in}       % Distance from bottom of body to the bottom of the footer\
-%                                   % value = 11 - (1.0 + 0.25) - 8.9 - 0.5 = 0.35
+\setlength{\footskip}{0.5in}       % Distance from bottom of body to the bottom of the footer\
+%                                   % value = 11 - (1.0 + 0) - 9 - 0.5 = 0.5
 
 % ------------------ change name format---------------
 
@@ -379,10 +364,11 @@
          The University of Texas at San Antonio, \@year \\
          \end{spacing}
          \vspace{0.25in}
-          Supervising Professor: 
-        \ifx \@empty\@cosupervisor
+         \ifx \@empty\@cosupervisor
+            Supervising Professor: 
          \@supervisor \\
         \else
+            Supervising Professors: 
 	 \@supervisor\space and \@cosupervisor \\
        \fi
       \end{center}
@@ -401,56 +387,32 @@
 }
 %----------------------------------------------------------
 % The command that produces the preliminary pages 
-% satisfying UTSA Grad School guideline as of 2008
+% satisfying UTSA Grad School guideline as of 2016
 %
 \renewcommand{\maketitle}{
 \doublespacing
 
 %-----------------------------------------------------------------
-% Preliminaries - as per 9-6-2011 UTSA Graduate School Guidelines
+% Preliminaries - as per June 2016 UTSA Graduate School Guidelines
 %-----------------------------------------------------------------
 % 1. Blank Page (not counted or typed)
 %    \pagestyle{empty}
 %    \mbox{}
     
 % 2. Signature Page (not counted or typed)
-    \newpage
-    \pagestyle{empty}
-    \begin{center}
-    \@thesistitle
-    \end{center}
-    \vfill       % put signature lines at bottom of page
-    \@signature
+%    \newpage
+%    \pagestyle{empty}
+%    \begin{center}
+%    \@thesistitle
+%    \end{center}
+%    \vfill       % put signature lines at bottom of page
+%    \@signature
 
-% 3. Copyright (optional, counted, not typed)
-    \ifx \@empty\@thesiscopyright
-    \else
-      \newpage
-    \pagenumbering{roman} %counting starts
-      \pagestyle{empty}    
-      \vspace*{1.5in} 
-      \begin{singlespace}
-      \begin{center}
-        \@thesiscopyright
-      \end{center}
-      \end{singlespace}
-    \fi
-    
-% 4. Dedication (optional, counted, not typed)
-    \newpage
-    \ifx \@empty\@thesiscopyright
-	    \pagenumbering{roman} %counting starts
-    \fi
-    \pagestyle{empty}
-    \begin{center}
-    {\bf DEDICATION}
-    \end{center}
-    \vspace{2ex}
-    \@dedication
     
 % 5. Title page (counted, note typed)
-    \newpage
-    \pagestyle{empty}
+    \newpage  
+    \pagenumbering{roman} % page counting starts
+    \pagestyle{empty} % page number not typed
     \begin{center}
       %\MakeUppercase{\@thesistitle}
       \@thesistitle
@@ -462,7 +424,7 @@
     
     \MakeUppercase{\@thesisauthor}, \@lastdegree
     
-    \vspace{1.5in}
+    \vspace{1in}
     \begin{singlespace}
     \@thesistype\\
     Presented to the Graduate Faculty of \\
@@ -474,6 +436,10 @@
     
     \MakeUppercase{\@degree}
     
+     \vspace{.25in}
+     
+    \@committee
+     
     \vfill
     THE UNIVERSITY OF TEXAS AT SAN ANTONIO \\
     \@college \\
@@ -482,6 +448,31 @@
     \end{singlespace}
     \end{center} %\linespace{2}
     
+    % 3. Copyright (optional, counted, not typed)
+    \ifx \@empty\@thesiscopyright
+    \else
+      \newpage
+      \pagestyle{empty}    % not typed
+      \vspace*{1.5in} 
+      \begin{singlespace}
+      \begin{center}
+        \@thesiscopyright
+      \end{center}
+      \end{singlespace}
+    \fi
+    
+% 4. Dedication (optional, counted, not typed)
+    \newpage
+%    \ifx \@empty\@thesiscopyright
+%	    \pagenumbering{roman} %counting starts
+%    \fi
+    \pagestyle{empty} % not typed
+    \begin{center}
+    {\bf DEDICATION}
+    \end{center}
+    \vspace{2ex}
+    \@dedication
+
     \newpage
     \pagestyle{plain} % page number typed starts
 % % 6. Acknowledgements (counted, typed in lower case Roman numerals   
@@ -493,6 +484,7 @@
 %------------new bibname ---------------------
 %\renewcommand{\bibname}{BIBLIOGRAPHY}
 }
+
 
 \newcommand{\informationitems}[7]{
 \def\@degree{#1}
@@ -511,18 +503,15 @@
 
 \newcommand{\supervisor}[1]{\def\@supervisor{#1} 
 \def\@committeeA{#1, Chair}}%
-\newcommand{\cosupervisor}[1]{\def\@cosupervisor{#1} 
+\newcommand{\cosupervisor}[1]{ \def\@cosupervisor{#1}%
+\def\@committeeA{\@supervisor, Co-Chair}%
 \def\@committeeB{#1, Co-Chair}}%
 \newcommand{\committeeB}[1]{\def\@committeeB{#1}}%
 \newcommand{\committeeC}[1]{\def\@committeeC{#1}}%
 \newcommand{\committeeD}[1]{\def\@committeeD{#1}}%
 \newcommand{\committeeE}[1]{\def\@committeeE{#1}}%
-\newcommand{\committee}[5]{%
-\def\@supervisor{#1} \def\@committeeA{#1}%
-\def\@committeeB{#2} \def\@committeeC{#3}%
-\def\@committeeD{#4} \def\@committeeE{#5}%
-}%
 
+\newcommand{\thesisauthor}[1]{\def\@thesisauthor{#1}}%
 \newcommand{\thesismonth}[1]{\def\@month{#1}}%
 \newcommand{\thesisyear}[1]{\def\@year{#1}}%
 \newcommand{\thesisdate}[2]{\def\@month{#1} \def\@year{#2}}%
@@ -576,6 +565,8 @@
 \informationitems{Full Name of the Degree}{Short Degree Name}%
                  {The Last Degree}{Department Name}{College Name}%
                  {Graduation Month}{Graduation Year}
-\committee{My Supervisor, Degree}{Committe member B, Degree}%
-          {Committe member C, Degree}{Committe member D, Degree}%
-          {Committe member E, Degree}
+\supervisor{Supervisor Name, Degree}
+\cosupervisor{Co-Supervisor Name, Degree}
+\committeeC{Name, Degree}
+\committeeD{Name, Degree}
+\committeeE{Name, Degree}

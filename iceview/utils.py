@@ -6,8 +6,94 @@ import argparse
 import sys
 import os
 from glob import glob
+
 def hsv_imread(img_path):
     return rgb2hsv(imread(img_path))
+
+def get_keypoint_filename(putdir, imgname):
+    kpname = os.path.join(putdir, imgname)
+    kpname = ''.join(kpname.split('.')[:-1])
+    return kpname
+
+def get_match_filename(putdir, base_name):
+    bn = ''.join(base_name.split('.')[:-1])
+    bn = os.path.join(putdir, bn + '.match')
+    return bn
+
+def create_match_file(putdir, base_name):
+    match_name = get_match_filename(putdir, base_name)
+    bfp = open(match_name, 'w')
+    bfp.write(base_name + '\n')
+    return bfp
+
+def add_match(match_fp, putdir, img_name):
+    match_name = get_match_filename(putdir, img_name)
+    match_fp.write(img_name + '\n')
+    # see if this file has previous matches
+    if os.path.exists(match_name):
+        img_matches = []
+        imfp = open(match_name, 'r')
+        for line in imfp.readlines():
+            print(line)
+            match_fp.write(line.strip())
+        print("Matched %s match_name, removing" %match_name)
+        os.remove(match_name)
+    return match_fp
+
+def save_keypoints_and_descriptors(kppath, img_k, img_d):
+    kfp = open(kppath+'.kpt', 'w')
+    dfp = open(kppath+'.des', 'w')
+    np.savetxt(kppath+'.kpt', img_k, delimiter=',')
+    np.savetxt(kppath+'.des', img_d, delimiter=',')
+    kfp.close()
+
+def load_keypoints_and_descriptors(kppath):
+    kfp = open(kppath+'.kpt', 'r')
+    dfp = open(kppath+'.des', 'r')
+    img_k = np.loadtxt(kfp, delimiter=',')
+    img_d = np.loadtxt(dfp, delimiter=',')
+    kfp.close()
+    dfp.close()
+    return img_k, img_d
+
+def get_keypoints_and_descriptors(ikdname, img_gray, extractor):
+    try:
+        img_k, img_d = load_keypoints_and_descriptors(ikdname)
+        print("loaded image %s from file" %ikdname)
+    except IOError:
+        img_k, img_d = detect_and_extract(extractor, img_gray)
+        save_keypoints_and_descriptors(ikdname, img_k, img_d)
+        print("derived %s keypoints" %ikdname)
+    return img_k, img_d
+
+
+def get_basename(run_num, base_num, matches):
+    txt = ['run_', '_base_', '_matches_']
+    name = [run_num, base_num, matches]
+    fill = []
+    out = ''
+    for xx, n in enumerate(name):
+        out += txt[xx]
+        if n == '*':
+            out+= n
+        else:
+            out+= '%05d' %n
+    out += '.%s' %output_image_type
+    return out
+
+def get_unmatched(run_num):
+    bn = get_basename(run_num, '*', '*')
+    bpath = os.path.join(outdir, bn)
+    unmatched = glob(bpath)
+    return unmatched
+
+def get_matches(base_path):
+    try:
+        bn = os.path.split(base_path)[1]
+        match = int(bn.split('_')[-1].split('.')[0])
+    except:
+        match = 0
+    return match
 
 def gray_imread(img_path):
     return rgb2gray(imread(img_path))
