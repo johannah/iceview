@@ -1311,16 +1311,6 @@ matching than using a single one to match an image region \cite{Alahi10}.
 %Euclidean homography. If the percentage is below 40\%, the set of data is too noisy and small to apply non- linear minimizations. The model is computed using least-squares.
 %\cite{Caballero07}
 
-\chapter{Categorizing Ice}
-
-The Jaccard index is the same thing as the Jaccard similarity coefficient. We call it a similarity coefficient since we want to measure how similar two things are.
-
-The Jaccard distance is a measure of how dis-similar two things are. We can calculate the Jaccard distance as 1 – the Jaccard index.
-
-\chapter{Description of Approach}
-
-\section{Online Approach}
-\section{Global Approach}
 This approach utilizes 
 the knowledge that the UAV captured images in a spatial order as it was flying, 
 so we attempt to match images with neighboring timestamps first.
@@ -1328,6 +1318,39 @@ This sequential approach is not necessary, but will decrease convergence time
 as it limits the number images that must be searched in a typical mission. 
 Local motion around each feature point is expected to be mostly 
 translational with minimal roll and pitch of the camera. 
+\section{Error Metrics} 
+standard measurments, cross correlation between images - 
+speed ...
+
+
+\section{Validation - Synthetic Mosaic}
+A synthetic survey is generated from a single image by dividing the image into
+a grid overlapping sub-images.  This provides a planar scene with an ideal 
+pinhole camera. Simple translations produce the resulting image. Another test 
+introduced rotation and scaling into each sub-image. 
+
+
+\chapter{Categorizing Ice}
+
+Segmentation of an image into pixel classes can be thought of as either a 
+supervised problem which requires training a set of classfiers from data  
+which has been labelled at the pixel level or an unsupervised problem works without labels. For our problem of high-resolution ice imagery, there does not exist to our knowledge a large database of labeled pixels from which to train in a supervised manner. Instead, we formulate our problem as unsupervised classification from which we partition the image into coherent regions according 
+to class-independent cues \cite{Csurka13}. 
+
+Labelled as approximate ground truth by human experts. 
+
+We utilize the Jaccard index \cite{Jaccard1901} (also known as the Jaccard Similarity Coefficient), 
+a measure of the overlap ratio to determine the similarity between our calculated classification and the labelled image classes. This measure is defined by the 
+size of the intersection divided by the size of the union of the dataset. 
+Thus, the Jaccard index is zero if there are no correctly classified pixels and 1 if all pixels are assigned the correct class. 
+
+
+
+\begin{equation}
+    \label{eq:jaccard}
+    J(A,B) = \frac{|A \cap B|}{|A \cup B|}
+\end{equation}
+\chapter{Description of Approach}
 
 
 
@@ -1343,20 +1366,6 @@ rotation   - what angle limit?
 scaling - images should be scaled to size of smallest before stitching
 -- show plot of actual scaling vs calculated
 demo 
-\subsection{Aerial Surveys}
-
-\subsection{Image Patches}
-\section{Error Metrics} 
-standard measurments, cross correlation between images - 
-speed ...
-
-
-\section{Validation - Synthetic Mosaic}
-A synthetic survey is generated from a single image by dividing the image into
-a grid overlapping sub-images.  This provides a planar scene with an ideal 
-pinhole camera. Simple translations produce the resulting image. Another test 
-introduced rotation and scaling into each sub-image. 
-
 \chapter{Conclusion and Future Work}
 \label{chap:conclusion}
 
