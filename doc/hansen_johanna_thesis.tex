@@ -96,53 +96,50 @@ This thesis will focus on the application of low-altitude aerial photography for
 try to better understand the world's changing climate. 
 For ships navigating in ice laden waters, UAVs provide the potential
 to replace manned helicopters acting as scouts for 
- ships navigating in ice laden waters. For these ships, 
-real-time knowledge about the changing and often dangerous 
-conditions is necessary. Though UAVs provide an excellent data collection platform, 
+ ships navigating in ice laden waters. As one can imagine, manned helicopters 
+ are expensive to purchase and operate and require an experienced pilot. They also consume a large footprint of valuable deck space on an ocean-going vessel. 
+
+Though UAVs provide an excellent data collection platform, 
 that data can be labor intensive to process and interpret. Images captured from 
-a UAV provide a small field-of-view, meaning that hundreds, if not thousands of 
-images are collected on a single scouting mission. The common way to organize 
+a UAV provide a small field-of-view. This means that for a typical scouting mission, hundreds, if not thousands of 
+images are collected. The common way to organize 
 this information is by joining the overlapping images into a single field of
-view image known as a mosaic. The process of creating a mosaic automatically requires 
-finding overlapping scenes within neighboring images and then registering each image 
-based on the overlap onto a common scene which is known as the mosaic. 
+view by relating the images into a single image known as a mosaic. The process of creating a mosaic automatically requires 
+finding overlapping scenes within neighboring images and then registering each image onto the mosaic. 
 Although this is a fairly routine process with modern computers, traditional 
 image mosaicing algorithms tend to fail when faced with sea ice 
-scenes. Sea ice is difficult to mosaic for two main reasons; ice itself 
+scenes. Sea ice is difficult to mosaic because solid ice itself 
 typically has very few distinguishing features from which 
-to match to overlapping images, and water pixels are dynamic in nature,  
-making it impossible to match images with overlapping scenes that are taken 
-at different points in time as in the case of images captured from a UAV flying 
-over a scene.
-Here we present a method for adding robustness to the mosaicing process by utilizing
-sensor information from the vehicle and providing a tier of matching solutions that
-isolate dynamic scenes. In addition, we provide an estimate of surface coverage 
-of ice. 
-The surface estimation provides a quantitative tool which is useful for
-scientific endeavors and vessel operators. 
-This approach is demonstrated using 
-real data obtained over several days on an Artic Expedition. 
+to match to overlapping images. We must take into account the fact that water is 
+not static over time so will not provide structural information about the scene
+when images are captured at different points in time as is the case when a UAV 
+with a monocular camera surveys a region. We provide a solution to the dynamic 
+state of the images by first masking water and then matching only ice from the images. In addition to improving image registration, this step also allows 
+us to automatically calculate the concentration of ice in the surveyed area. 
+We take this a step further and provide a scheme to classify the types of ice 
+encountered in the scene. This is important for large-scale route planning as 
+different ice has various structural properties  which are important for 
+ice breaking ships. This also creates a baseline for scientific surveys of a 
+region. Our results are demonstrated using 
+data obtained over several days on an Artic Expedition. 
 
 \end{abstract}
 \pageone{}
 
 \chapter{Introduction}
-The problem of establishing correspondences between a set of images taken from 
-different viewpoints is well studied in computer vision. Applications of this 
-type of work include motion recovery, image retreival, and robot navigation 
-to name a few. We limit the problem to image mosaicing and tackle the issue of 
-correspondence for .....TODO
-
 Sea ice has a large impact on the global climate, maintaining a large heat sink 
 in the poles and increasing the Earth's albedo \cite{Sephton94}. It is important to 
-study because it can hinder travel and provide significant scientificant information.
-
+study because it can hinder travel and provide significant scientificant information. We propose to utilize low-cost unmanned aerial vehicles to 
+make flexible, high-resolution surveys of sea ice. To make data collected useful, 
+we provide an algorithm for mosaicing the sea ice into a single scene and 
+classification tools to quantify ice types and concentration. 
 
 Capturing images from a low-altitute provides detailed information of the 
 target scene, but the tradeoff for resolution is field-of-view. To obtain understanding 
 of a scene spread across many high resolution images with a small field-of-view, 
 it necessary to combine the information into a larger image by mosaicing the images 
 together into a single image. 
+
 Image mosaicing has been utilized to join images of overlapping aerial
 scenes since long before digital photographs \cite{Wolf83}. Originally, film 
 photographs were captured from hot air balloons or low-flying aircraft and pasted 
@@ -153,41 +150,46 @@ in many smart phones equipped with cameras for use for stabilization, small pano
 and multiple image super-resolution. Many dedicated software programs are 
 available to provide image stitching including 
 AutoPano, Hugin, PhotoScan \cite{AutoPano, Hugin, Photoscan}. In this work, we 
-tackle a dataset which remains challenging for conventional mosaicing pipelines, 
-high resolution imagery of sea ice. 
+tackle a mosaicing for a dataset which remains challenging for conventional mosaicing pipelines 
+and add a new capability that automatically classifies sea ice 
+type at the pixel level providing ice coverage information. 
 
 \section{Motivation}
-
-
-Expeditions into the world's frozen oceans requires expert navigation and 
+Expeditions into the world's frozen oceans require expert navigation and 
 real-time knowledge of the constantly shifting conditions. This region of the earth 
-is both interesting from a scientific perspective  
+is interesting from a scientific perspective  
 because much of it remains unexplored and because it is rapidly changing.
 It also harbours rich natural resources 
 that are increasingly accessible and important to government and commercial 
-interests. However, navigating and working in remote sea ice still presents 
-a significant technological challenge and requires constant monitoring of
-sea ice to work 
-safely. 
+interests. However, to work and travel safely in these regions requires 
+constant vigillance and near continous monitoring of the ever moving ice 
+that can trap ships in these inhospitable environments. 
+Real-time knowledge about the changing and often dangerous 
+conditions is necessary for a ship working in polar regions. 
+This surveillance 
+still presents significant monetary expenditures and a technological challenge.
 
 Historically, ships working in these conditions
 have relied on human scouts, helicopters, and/or satellite imagery to monitor 
 the sea ice movement.  However, these approaches are resource intensive in the 
 case of helicopters and suboptimal in the case of satellites. 
 Manned aircraft are expensive to operate, requiring 
-expert pilots and precious deck space and do not necessarily solve the scientific 
-problem of cataloguing the sea state. In addition, the low cost and lack of a human 
-operator in a UAVs means that 
-they can be operated in riskier conditions than manned aircraft. 
+expert pilots and precious deck space. They also do not necessarily solve the scientific 
+problem of cataloguing the sea state. 
+Severe weather or tumultuous seas can limit when a manned aircraft can be safely deployed. Often these times are when it is most important retrieve local conditions. 
 Satellite sensors can provide useful
 overviews, but the data captured is low-resolution both in time and coverage. It 
-is also prone to occlusion by cloud cover or atmospheric conditions. 
+is also prone to occlusion by cloud cover or atmospheric conditions (again, these 
+reports are often especially important when the weather is foul). 
 
-Unmanned Aerial Vehicles (UAVs) equipped with high
-resolution digital cameras offer a low-cost alternative to manned aircraft. The 
-advantage over sattelite imagery is obvious in that the 
-data is much higher resolution and a survey can be conducted at the
-operators discretion. 
+Low-cost UAVs can fill the gap between wide-area satellite coverage and instanteanous reconissance. They can be thought of as nearly disposable in 
+bad weather and the data may be retrieved remotely, even if the vehicle 
+is unable to return to the ship. 
+The  main
+advantage over satelite imagery is obvious in that the 
+data is captured at a much higher resolution and can be gathered at the operaters discretion. This means that data for a particular region can be updated whenever 
+the vehicle is ready.
+
 UAVs require little expertise to operate and little deck space. However, because 
 there is no human observer of the terrain, the data collected from the vehicle must 
 be processed and analyzed in a way that is useful for non-technical decision makers. 
@@ -216,37 +218,33 @@ stitching and warping errors typically resulted from the accuracy of feature
 matching or the projection of object height. 
 
 
-The features 
-from the sea ice data are often poor or dynamic, causing the non-specialized programs 
-to misregister images or fail completely. 
+Sea ice images present a 
+fairly unique problem in that the images contain largely repeating, homogenous 
+pixels that do not perform well with traditional techniques.
+We add an additional preliminary step to the typical stitching pipeline to detect 
+known nonstationary features and remove them from the pixels that are considered for 
+feature detection. We use these features to gain understanding about ice floes and 
+provide an estimate of sea ice coverage based on this measurement. 
 
-Our approach addresses the reasons these
-approaches fail and adds additional advantage in the form of sea ice coverage information. 
-
-In addition, the size of an iceberg is necessary for calculating the 
-iceberg's trajectory and stability. However, obtaining data on the geometry is not 
-simple, and typically underwater and overhead measurements must be taken to determine 
-the size. 
 
 \section{Problem Statement}
-The high-resolution low field-of-view tradeoff accepted by the  UAV means that many 
-high resolution images are captured in an attempt to understand a scene. Our aim  
-in this thesis is to make sense of the data by aligning the many images  
- into a an overview mosaic of the scene while providing useful information about 
- the survey area. The process of creating a mosaic 
-requires recognizing overlapping regions between images (if they exist) and 
-then determining the transformation between each image onto the base overview scene. 
-We require that the scene be orthorectified so that the relative distances between 
-features are preserved and georeferenced, so that the overview image can be 
-incorporated into Geographic Information Systems (GIS) for further intrepretation, 
-analysis, and combining with other data sources. We also wish to provide an 
-analysis of the images in the form of ice coverage. This is important both for 
-scienctific enquiries and for ship operations. Considering the aforementioned goals 
+The problem of establishing correspondences between a set of images taken from 
+different viewpoints is well studied in computer vision. Applications of this 
+type of work include motion recovery, image retreival, and robot navigation 
+to name a few. We limit the correspondence problem to image mosaicing and tackle the difficult issue of determining overlap 
+ for images which are nearly featureless such as solid ice sheets. 
+In addition we tackle the problem of determining sea ice concentration and ice types, an important problem when planning routes by sea for surface and underwater vessels. We see our terrain classification solution as an especially valuable first step in collecting data needed  for  extending 
+autonomous mission planning capabilities in multi-vehicle collaborations. 
+
+
+
+
+Considering the aforementioned goals 
 and challenges, we address and solve the three following problems: 
 \begin{itemize}
-    \item{Segmenting sea ice from water and other objects to reduce false matches 
-        while providing ice coverage information at the same time. }
-    \item{How to exploit metadata from the UAV to speed up image matching and 
+    \item{Segment sea ice from water to provide ice concentration and reduce false matches in feature matching (performed in subsequent steps)}
+    \item{Classify ice regions by type of ice seen in floes}
+    \item{Exploit metadata from the UAV to speed up image matching and 
             registration by reducing the search space of overlapping images and by 
             pre-aligning images so that low-cost feature descriptors can be used for 
             matching.}
@@ -256,32 +254,8 @@ and challenges, we address and solve the three following problems:
     }
 \end{itemize}
 
-
-
-
-\section{Contribution}
-This process has been tested on data collected off of an ice breaker working in 
-the Artic in various ice conditions. 
-
-The problem of image mosaicing can be broken several steps. The first step 
-is to identify images that have 
-overlapping regions. Then these regions must be correctly aligned and 
-merged onto the larger mosaic. Identifying overlapping regions is a difficult 
-problem, especially in a large search space. Sea ice images also present a 
-fairly unique problem in that the images contain largely repeating, homogenous 
-pixels that do not perform well with traditional techniques.
-We add an additional preliminary step to the typical stitching pipeline to detect 
-known nonstationary features and remove them from the pixels that are considered for 
-feature detection. We use these features to gain understanding about ice floes and 
-provide an estimate of sea ice coverage based on this measurement. 
-Our mosaic is built incementally by updating the scene 
-as new images are captured. This approach means that the overview mosaic is
-produced more quickly than with methods that wait for all images to refine homographies. 
-We also utilize metatdata to speed up the 
-matching process and reduce search space for matching images.
-
-
 \section{Outline}
+
 The remainder of this thesis is organized as follows. Chapter \ref{chap:background} 
 provides a history of image mosaicing and stitching approaches. 
 Chapter \ref{chap:related} discusses related work in sea ice and image mosaicing 
@@ -300,6 +274,264 @@ delving into more complicated computational concepts.
 
 \chapter{Background}
 \label{chap:background}
+\section{Remote Sensing}
+Remote sensing is the term used to describe the process of obtaining data without 
+physical contact. The field of remote sensing, like most modern fields that 
+are associated with data, has experienced an explosion in the amount, quality, and 
+accessibility of data. 
+
+
+Traditional remote sensing typically referred to spatial data  captured from platforms such as satellites or manned aircraft.  
+These platforms generally 
+observe the earth from a higher altitude and thus a lower resolution than what we are concerned with here and 
+thus have looser requirements for stitching accuracy. For example, a popular instrument 
+for observing the earth from satellite is MODIS, the Moderate Resolution Imaging 
+Spectroradiometer. MODIS is housed on the Terra and Aqua satellites which view the 
+entire earth surface every 1 to 2 days at 36 distinct wavelengths with a spatial 
+resoution of 500 m in the visible spectrum \cite{MODIS}. 
+
+Data collected from small 
+unmanned aircraft is much more flexible in terms of capture frequency and location. However, potential coverage area is also much more limited with a single sensor when compared to high-altitude systems.  Although our system 
+seeks to extend remote sensing capabilities of sea ice to UAVs, we will further 
+investigate past work in this field performed with high altitude systems  in 
+Section \ref{sec:highalt}. In the following section, we cover UAVs in more detail 
+to lay the groundwork for the remainder of the paper. 
+
+With the abundance of remote sensing data has come an increasing need for 
+automated methods of interpreting the data.  In the Sections \ref{sec:ice} and 
+\ref{sec:map} we provide background on two data products that enable faster 
+qualification and assesment of the terrain captured by remote sensing. 
+
+\section{Unmanned Aerial Vehicles}
+Remote sensing has long been dominated by 
+governments and commercial organizations, but recent 
+advances in unmanned aerial vehicles have brought flight to 
+the average consumer and researcher. 
+Individual UAVs vary widely in terms of payload, endurance, weight, 
+and speed and a comprehensive review is out of the scope of this thesis.
+For a more complete overview of UAV capilities and history, 
+please refer to a review by Colomina \cite{Colomina14}. For now, we'll focus on 
+the sensors and qualities needed for UAVs capable of performing ice coverage missions. 
+
+One important consideration for shipboard 
+operations is the space needed for launch and recovery. There are two general 
+types of architectures of UAVs: fixed wing and rotary winged. Fixed wing vehicles,
+which shaped like a typical airplane, are 
+typically more stable and have longer range than rotary wing vehicles, which propel themselves like a helicopter. However, fixed-wing vehicles have 
+a more complicated deployment, requiring horizontal space for takeoff and landing. This can be difficult on a ship with limited deck space.
+
+UAVs also vary greatly 
+in their computational capabilities and complexity. Many are capable of autonomous flight, while others rely solely on remote control by humans. For 
+the purpose of this research, 
+we disregard flight planning and control and focus only on the data products collected 
+from the platform. 
+
+Nearly all systems will have some sensing capabilities necessary for navigation, 
+though the accuracy and capabilities of these devices can vary widely and 
+have enormous impact on the quality of flight and data products captured.
+
+\subsection{Global Positioning System (GPS)}
+The Global Positioning System, frequently shortened to GPS, is a system which 
+provides the location and time when a receiver is within view 
+of at least four system's satellites. A GPS receiver monitors the 
+the time of flight for messages passed between each of the visible satellites and the receiver and uses this to perform a calculation of the receiver position. 
+This position is presented as latitude, longitude, 
+and elevation from mean sea level. In our system, GPS points are the main method 
+of UAV localization. Although the GPS provides frequent updates for the vehicle position, this calculation contains some ammount of error that is almost always too large to perform image stitching at any reasonable resolution. 
+
+TODO: GPS accuracy 
+
+\subsection{Inertial Measurement Unit (IMU)}
+An inertial measurement unit (IMU) is a sensor utilizes accelerometers, 
+gyroscopes, and magnetometers to estimate movement and position. 
+
+\subsection{Digital Cameras}
+Digital cameras are ubiquitous and convienent sensors for
+capturing and recording a specific 
+range of electromagnetic radiation. The images that we are working with in this 
+thesis are from the visible spectrum and represent images as they are seen 
+with the human eye. 
+TODO: talk about focal length - lens properties, resolution
+
+The accuracy of stereo degrades as the distance to the scene increases and is 
+lower with a larger baseline distance. A large baseline is not feasible on many
+platforms, especially airborne systems. Rather than using two fixed cameras 
+capturing the scene simultaneously, we can use a wide-baseline stereo system.
+Wide-baseline stereo systems capture the scene from different positions 
+using the same camera. 
+Larger baseline can allow for a more accurate depth estimation of distant 
+terrain, given that the location estimates of the camera position are accurate. This 
+position estimation is inaccurate when compared to the strictly known 
+viewpoint disparity in traditional stereo vision systems. Determining the overlapping scene with wide-baseline can be more difficult than traditional 
+systems, because there is often a larger difference in perspective.  \cite{Olson10}
+
+
+\section{Vision Based Mapping}
+
+
+
+
+
+\subsection{Image Mosaics}
+An image mosaic is a synthetic wide-angle camera view which is built from a set of smaller images with 
+an overlapping field of view. 
+Image mosaicing has been extensively used to gain a greater viewpoint of the world. 
+Historically, images were captured on air balloons and airplanes and then printed 
+and aligned by hand. In modern times, digital cameras and smartphones are capable of 
+automatically stitching panoramas on a small platform. 
+There exists a large and robust body of work for creating mosaics from digital photographs
+\cite{Milgram75,  Szeliski97, Shum00, Brown03 },
+video \cite{Szeliski96, Steedly05} and for full 3D 
+reconstruction \cite{Morimoto97, Shum-3D98}. These methods are more fully 
+reviewed by Szeliski \cite{Microsoft}, 
+Prathap \cite{Prathap16} and Zitova \cite{Zitova03}.
+Since the influential paper by Schmid and Mohr \cite{Schmid97} on wide-baseline stereo, many new algorithms have been introduced.
+
+
+TODO: panoramic vs mosaic
+Mosaics with extended field of view benefit 
+from the relatively large and equal distance to the scene in each image. 
+- taken in such scenarios are challenging as compared to panoramic construction
+or other mosaicing methods such as satellite image mosaicing. 
+
+Constructing an image mosaic typically consists of several general steps:
+
+\begin{enumerate}
+    \item{\textbf{Determine images with overlapping views of a scene.} }
+    \item{\textbf{Estimate the homography between images with overlapping scenes.} }
+    \item{\textbf{Register images onto a common frame.}}
+    \item{\textbf{Blend image seams to improve appearance.}}
+\end{enumerate}
+
+
+\subsection{Related Work}
+\label{chap:related}
+Although the area of image mosaicing has been widely studied for many years, 
+some problems remain elusive. 
+High altitude imagery and on-ground mosaicing such
+as panoramic image construction are not in our area of in-
+terest since they are dealing with different challenges.
+These include but are not limited to: 
+
+\begin{itemize}
+    \item{Recovering from poor overlap}
+    \item{Determining overlapping scenes with poor features}
+    \item{Images taken with drastic differences (day and night or change in seasons)} 
+    \item{Resolution and quality of output mosaic}
+    \item{Dynamic Scenes}
+    \item{Classification of terrain}
+\end{itemize}
+
+Prathap gives a thorough review of the current state of mosaicing \cite{Prathap16}. 
+
+Many researchers and engineers have utilized UAVs to gather images to form large-scale 
+photo mosaics \cite{ Caballero07, Yahyanejad10, Cheng10, Pritt14, Kekec14, Prasad16, Vousdoukas11, Wang11, Wang14}.
+Images collected with a UAV can often be quickly, but roughly  aligned 
+using data from sensors such as Global Positioning System (GPS) points and 
+Intertial Measurement Unit (IMU) estimates.
+However, these measurements are typically not 
+accurate or reliable enough to generate a visually appealling image. 
+Instead, most approaches for mosaicing UAV images use some form of a feature 
+based approach to match images. Problems tend to occur when there exists 
+low-overlap between images, moving objects in the survey area, or featureless 
+images. 
+
+Caballero uses the match success between images to limit the homography model selection. 
+Using a simpler model if fewer matches are available \cite{Caballero07}.  
+ Lin utilizes a low-resolution global map to align images \cite{Lin07}
+
+ Qian demonstrates the use of vehicle rotation rate
+ information from gyros mounted to the vehicle to assist in the process 
+ of matching camera features from frame to frame \cite{Qian01}. 
+
+Registration \cite{Barnea72, Shum-local98, Sawhney99}
+
+
+Cheng \cite{Cheng10} divides image sequences from UAV flight into small groups of 
+overlapping images and then performs local optimization based on the Extended Kalman 
+Filter (EKF). This corrects homographies in a local area before performing a 
+global optimization step. Civera \cite{Civera09} also 
+uses an Extended Kalman Filter to improve consistent mosaics, but from 
+a SLAM (Simultaneous Localization and Mapping) perspective. SLAM, a probablistic
+filtering approach which has recently become common in the field of 
+mobile robotics, allows a moving sensor to build a map of the world while 
+moving through it. Similarly, Civera uses the EKF to predict the location 
+in the next frame of a rotating camera. 
+This allows for 
+real-time, drift free mosaicing, though it was only demonstrated in a small scene. 
+
+Proposed a real-time approach of mosaicing images from UAVs for disaster 
+response. First, the images were downsampled and roughly aligned using only 
+GPS and IMU data, then as bandwidth allowed, the alignment was refined using 
+feature based methods \cite{TODO}
+
+In 2010, Botterill proposed using Bag-of-Words representation of images 
+to reduce the search space for overlapping images. This provides a cheap 
+approach for finding wide-baseline correspondences for mosaic building \cite{Botterill10}
+
+
+
+\subsection{Featureless Scenes}
+Prasad, et al investigated the problem of developing mosaics in quadcopter surveys 
+with gaps in features using imu information to improve convergence time.
+The approach was demonstrated on building walls with only small regions (paintings) 
+that provided keypoints\cite{Prasad16} 
+\cite{Schaffalitzky01}
+
+\cite{Olson10} Captured more than two images of the same scene with varying baselines to improve depth estimates.
+
+\cite{Bay05} matched scenes using line segments in addition to descriptors to match homogenous scenes like 
+architectural interiors. Line segments conveny geometrical and topological information while the region descriptors capture details 
+about local appearence. Made wide-baseline more reliable. Line segments are 
+not very descriptive. 
+Line segments extracted using a Canny edge detector. Edges are split at points 
+of high curvature. 
+
+Large area addition aided by navigational sensors 
+to generate 3D submaps that are merged using bundle adjustment \cite{Pizarro04}.
+
+
+\subsection{Dynamic Scenes}
+Small dynamic scene mosaics have been tackled in \cite{Fitzgibbon01, Rav-Acha07, Davis98, Uyttendaele01}. 
+However, our approach was to use a simpler, masking scheme to bar the feature 
+extraction algorithm from extracting keypoints from the dynamic portions of our 
+images. This is similar to the approach taken by Vousdoukas to mask sea and sea foam
+from shoreline images captured form an UAV in which he 
+manually selecting pixels associated with the 
+sea and foam and thresholding based on these intensities \cite{Vousdoukas11}. Because 
+Vousdoukas' mosaic was created along the shoreline, he was able to use 
+interesting keypoints from the shoreline to complete the mosaic using SIFT features. 
+
+Because image stitching techniques utilize features that are consistent amongst 
+overlapping images, dynamic or moving objects can cause false matches and incorrect 
+homography estimations. Our images are captured serially with a single camera so 
+that no two views of the scene are captured at the same moment. This means that 
+nonstationary 
+features in the scene are subject to change between images.
+
+In sea ice imagery, 
+the sea is subject to waves and ripples that may be extracted as features, but 
+will change over time and could result in false matches or no matches. 
+There are many methods for mosaicing a scene with dynamics in the static mosaic. 
+Some approaches eliminate all dynamic information in the scene, while others 
+attempt to encapsulate the changes between images by overlaying the movement 
+into the mosaic. 
+
+TODO: do keypoints ever fall on water?
+For the purposes of this system, the dynamic movement 
+of waves is not interesting information.
+We can exclude water from the feature extraction by first segmenting
+the image into ice and non-ice pixels. In addition to improving the feature 
+extraction process, we are also able to form an estimate of the sea ice coverage 
+for scientific and ship navigational purposes. 
+
+
+
+
+
+
+\section{Sea Ice Detection}
+
 Sea ice monitoring is an important issue for vessels operating in polar environments. 
 Many governments and organizations dedicate significant resources to providing 
 timely assessments and maps of sea ice coverage to ensure safety 
@@ -327,112 +559,10 @@ surounding water and neighboring floes. This has been well studied for SAR
 imagery.
 
 
-\section{Remote Sensing}
-Remote sensing is the term used to describe the process of obtaining data without 
-physical contact. The field of remote sensing, like most modern fields that 
-are associated with data, has experienced an explosion in the amount, quality, and 
-accessibility of data. 
 
 
-Aerial mosaicing includes images captured from platforms such as satellites, 
-manned aircraft, and unmanned aircraft. The first two platforms generally 
-observe the earth from a higher altitude than what we are concerned with here and 
-thus have looser requirements for stitching accuracy. For example, a popular instrument 
-for observing the earth from satellite is MODIS (Moderate Resolution Imaging 
-Spectroradiometer). MODIS is housed on the Terra and Aqua satellites which view the 
-entire earth surface every 1 to 2 days at 36 distinct wavelengths with a spatial 
-resoution of 500 m in the visible spectrum \cite{MODIS}. 
-
-Traditional remote sensing platforms like airplanes and 
-satelites are being augmented with low-cost UAVs making data production and analysis 
-accessible to hobbyist and professionals alike. In addition to sensors working through 
-the air, underwater platforms like Remotely Operated Vehicles (ROVs) and Autonomous 
-Underwater Vehicles (AUVs) are also providing remote sensing through water 
-with sound and images. 
-With the balloon in accessibility of data have come 
-automated methods for interpreting the data including, but not limited to  mosaicing. 
-Pixel-wise segmentation of imagery and object classification are 
-two additional tasks that 
-simplify the data into categories and allow for more complex 
-analysis and understanding.
 
 
-\section{Unmanned Aerial Vehicles}
-Aerial platforms are a staple of the modern economy and provide important platforms 
-for transport, data retreival, and security. Flight has long been dominated by 
-governments, commercial organizations, and weathly individuals, but recent 
-advances in unmanned aerial vehicles have brought the capabilities of flight to 
-the average consumer and researcher. In this discussion, we focus primarily on 
-the use of UAVs for low-altitude remote sensing and mapping, however, the 
-technology promises to open countless new sectors to entrepreneurs, hobbyists, 
-and humanitarians. For a more complete overview of UAV capabilities and history, 
-please refer to a review by Colomina \cite{Colomina14}.
-
-UAVs have a wide variety of capabilities in terms of payload, endurance, weight, 
-and speed. One important consideration for shipboard 
-operations is the space needed for launch and recovery. Fixed wing vehicles are 
-typically more stable and have longer range than rotary wing vehicles, but have 
-a more complicated deployment, especially on a small ship. UAVs also vary greatly 
-in their computational capabilities and complexity. Many are capable of autonomous 
-flight, while others rely solely on remote control by humans. 
-
-\begin{figure}
-    \centering
-    \begin{minipage}{.5\textwidth}
-        \centering
-        \includegraphics[width=.9\linewidth,height=0.6\linewidth]{uav_snow_d.jpg}
-        \captionsetup{width=0.9\linewidth}
-        \captionof{figure}{The Phantom FPV Flying Wing EPO UAV used to gather data over sea ice. This vehicle was equipped with a TODO camera for capturing images. }
-         \label{fig:no_features}
-     \end{minipage}%
-     \begin{minipage}{.5\textwidth}
-         \centering
-        \includegraphics[width=.9\linewidth,height=0.6\linewidth]{launch_uav_d.jpg}
-        \captionsetup{width=0.9\linewidth}
-        \captionof{figure}{UAVs have small space requirments for both storage and flight, making them ideal scouts for working off of a ship.}
-             \label{fig:good_features}
-      \end{minipage}
-\end{figure}
-
-
-Nearly all systems will have some sensing capabilities necessary for navigation, 
-though the accuracy and capabilities of these devices can vary widely and 
-have enormous impact on the quality of flight and data products captured.
-
-\subsection{Global Positioning System (GPS) Receivers}
-The Global Positioning System, frequently shortened to GPS, is a system which 
-provides location and time when a compatible receiver is within view 
-of at least four of the system's satellites. A GPS receiver monitors the 
-the time of flight for the messages coming from each satellite within its site 
-and performs a calculation of its position based on the known positions 
-of each of the satellites. This position is presented as latitude, longitude, 
-and elevation from mean sea level. 
-
-\subsection{Inertial Measurement Unit (IMU)}
-An inertial measurement unit (IMU) is a sensor utilizes accelerometers, 
-gyroscopes, and magnetometers to estimate movement and position. 
-
-\subsection{Digital Cameras}
-Digital cameras are ubiquitous and convienent sensors for
-capturing and recording a specific 
-range of electromagnetic radiation. The images that we are working with in this 
-thesis are from the visible spectrum and represent images as they are seen 
-with the human eye. 
-TODO: talk about focal length - lens properties, resolution
-
-The accuracy of stereo degrades as the distance to the scene increases and is 
-lower with a larger baseline distance. A large baseline is not feasible on many
-platforms, especially airborne systems. Rather than using two fixed cameras 
-capturing the scene simultaneously, we can use a wide-baseline stereo system.
-Wide-baseline stereo systems capture the scene from different positions 
-using the same camera. 
-Larger baseline can allow for a more accurate depth estimation of distant 
-terrain, given that the location estimates of the camera position are accurate. This 
-position estimation is inaccurate when compared to the strictly known 
-viewpoint disparity in traditional stereo vision systems. Determining the overlapping scene with wide-baseline can be more difficult than traditional 
-systems, because there is often a larger difference in perspective.  \cite{Olson10}
-
-\chapter{Sea Ice Detection}
 \begin{figure}
     \centering
     \begin{minipage}{.5\textwidth}
@@ -479,8 +609,8 @@ applications. Nevertheless, the approaches used for SAR segmentation will be
 covered briefly in the following section. 
 
 
-\section{High Altitude Sea Ice Segmentation}
-
+\subsection{High Altitude Sea Ice Classification} 
+\label{sec:highalt}
 
 \begin{figure}
 \label{fig:eggcode}
@@ -564,7 +694,7 @@ deep CNNs in a small case study.
 
 
 
-\subsection{Low-Altitude Sea Ice Observations}
+\subsection{Low-Altitude Sea Ice Classification}
 
 Skjetne et al. proposed utilizing UAVs for drift prediction to aid ships 
 attempting to maintain Dynamic Positioning (DP) in ice-laden waters \cite{Skjetne14}.
@@ -579,7 +709,9 @@ important to know where the ice is moving in advance so as to correctly position
 the ship. At present, sea ice is usually measured at close range using a marine radar 
 or manually with helicopter surveillence. UAVs are safer and less 
 resouce intensive than helicopters and can easily provide larger coverage than 
-marine solutions. Skjetne divided ice monitoring into two problems; the first is 
+marine solutions. 
+
+Skjetne divided ice monitoring into two problems; the first is 
 the one that we will tackle, dynamic sea ice monitoring to track the movement 
 of large bodies of ice sheets. The second problem is that of tracking large icebergs 
 which involves recognizing icebergs on temporally spaced observations and tracking 
@@ -640,41 +772,9 @@ and from simulated imagery.
 
 
 
-\chapter{Image Mosaicing}
-
-An image mosaic is a synthetic wide-angle camera view which is built from a set of smaller images with 
-an overlapping field of view. 
-Image mosaicing has been extensively used to gain a greater viewpoint of the world. 
-Historically, images were captured on air balloons and airplanes and then printed 
-and aligned by hand. In modern times, digital cameras and smartphones are capable of 
-automatically stitching panoramas on a small platform. 
-There exists a large and robust body of work for creating mosaics from digital photographs
-\cite{Milgram75,  Szeliski97, Shum00, Brown03 },
-video \cite{Szeliski96, Steedly05} and for full 3D 
-reconstruction \cite{Morimoto97, Shum-3D98}. These methods are more fully 
-reviewed by Szeliski \cite{Microsoft}, 
-Prathap \cite{Prathap16} and Zitova \cite{Zitova03}.
-Since the influential paper by Schmid and Mohr \cite{Schmid97} on wide-baseline stereo, many new algorithms have been introduced.
-
-
-TODO: panoramic vs mosaic
-Mosaics with extended field of view benefit 
-from the relatively large and equal distance to the scene in each image. 
-- taken in such scenarios are challenging as compared to panoramic construction
-or other mosaicing methods such as satellite image mosaicing. 
-
-Constructing an image mosaic typically consists of several general steps:
-
-\begin{enumerate}
-    \item{\textbf{Determine images with overlapping views of a scene.} }
-    \item{\textbf{Estimate the homography between images with overlapping scenes.} }
-    \item{\textbf{Register images onto a common frame.}}
-    \item{\textbf{Blend image seams to improve appearance.}}
-\end{enumerate}
-
-In the next few sections, each step in the mosaic building process will be 
-discussed with more detail and we will give an explanation of our approach to the 
-
+\chapter{Map Construction}
+\label{chap:features}
+TODO Introduction and overview
 \section{Determining Image Overlap}
 A reasonable amount of scene overlap (about 15-30\% overlap) with high quality features 
 is typically required to determine that two images should be stitched together. 
@@ -806,6 +906,236 @@ to give per-pixel allignment for high-resolution images at close range (<100m).
 Several practitioners of image mosaicing have demonstrated 
 ways in which to use sensor information to reduce the search space for overlapping 
 images in applications. 
+
+\section{Feature Evaluation}
+Like, most modern approaches, we register images by selecting key 
+features from each image 
+and attempting to relate them to other images in the scene. 
+There exist a wide variety of feature extraction and description
+techniques that enable matching between visual correspondences despite 
+rotation, scaling, or environmental changes such as lighting 
+noise. 
+In addition to invariance, a high number of detected features is also desireable
+to improve matching. 
+Keypoints should have high information content as measured by 
+repeatibility rate and information content. 
+
+Feature detectors rely on the existence of edges, corners, or  blobs in 
+the image to match images. If none occur, then no features can be detected. 
+Feature detecting algorithms tend to have different strengths and weaknesses as 
+discussed in several studies \cite{Tuytelaars08, Mikolajczyk05, Heinly12, Bekele13}. 
+Bekele \cite{Bekele13} in particular proved a good 
+overview of popular feature descriptors and 
+detectors and their performance which guided our evaluation on sea ice dataset.
+Describing keypoints is difficult in ice surveys 
+because of the lack of distinguishable features on images that contain 
+only ice or only water. All ice images often contain a high degree of repetitive 
+simularity which means even distinctive features can be incorectly matched with 
+non-overlapping images. 
+
+Heinly showed that the descriptors should be adapted to the transofrmations 
+present in the data \cite{Heinly12}.
+
+Equation \ref{eq:putativematches} was introduced by \cite{Heinly12}.
+
+% Quantifying a match
+In the following sections, feature detectors and descriptors are discussed and 
+evaluated on our dataset based on a number of points: 
+
+%where high precision relates to a low false positive rate, and high recall relates to a low false negative rate. High scores for both show that the classifier is returning accurate results (high precision), as well as returning a majority of all positive results (high recall).
+
+
+\begin{itemize}
+    \item{Average number of keypoints}
+    \item{Precision of matches}
+    \item{Recall of matches} 
+    \item{Average number of good matches}
+\end{itemize}
+
+\begin{equation}
+recall = \frac{number of correct matches }{number of correspondences}
+\label{eq:recall}
+\end{equation}
+
+\begin{equation}
+1-precision = \frac{number of false matches }{number of matches}
+\label{eq:precision}
+\end{equation}
+
+\begin{equation}
+putative match ratio = \frac{number of putative matches }{maximum possible matches}
+\label{eq:putativematches}
+\end{equation}
+
+\begin{figure}
+\label{fig:rotate_results}
+\centering
+\includegraphics[width=\linewidth, height=.6\paperheight]{rotate.png}
+        \captionsetup{width=.9\linewidth}
+        \captionof{figure}{
+A comparison of different feature descriptors on two datasets of 60 images randomly selected over a variety of conditions. The dataset labeled "good features" contained images with strong corners and lines, while the dataset labeled "bad features" contained images with only snow or ice and not significant features. Each image was subjected to a change in rotation and scored on its ability to match to the original image using a brute-force matcher.  }
+\end{figure}
+
+\begin{figure}
+\label{fig:scale_results}
+\centering
+\includegraphics[width=\linewidth, height=.6\paperheight]{Scale.png}
+        \captionsetup{width=.9\linewidth}
+        \captionof{figure}{
+A comparison of different feature descriptors on two datasets of 60 images randomly selected over a variety of conditions. The dataset labeled "good features" contained images with strong corners and lines, while the dataset labeled "bad features" contained images with only snow or ice and not significant features. Each image was subjected to a change in scale and scored on its ability to match to the original image using a brute-force matcher.  }
+\end{figure}
+
+
+Today, the most common technique for monitoring sea ice is through data obtained 
+by satellites. 
+%A  perfect descriptor would give a recall equal to 1 for any precision
+
+Putative matches, proposed by Heinly, allows us to measure the 
+selectivity of the descriptor. 
+precision is also the inlier ratio (ransac). The precision greatly influences the performance of robust estimation techniques like RANSAC. RANSAC's runtime increases exponentially as the inlier ratio decreases \cite{Heinly12}. 
+
+%Percent of matches - quotient of dividing matches count on the minimum of keypoints count on two frames in percents.
+%Percent of matches - quotient of dividing matches count on the minimum of keypoints count on two frames in percents.
+%Percent of correct matches - quotient of dividing correct matches count on total matches count in percents.
+%Matching ratio - percent of matches * percent of correct matches. In all charts i will use "Matching ratio" ( in percents) value for Y-axis.
+
+
+Parameters in each of the detectors are 
+tuned so that 4000 features are detected in the reference image.  
+If more than 4000 features are detected in the image, only the first 4000 
+are used in the evaluation.  
+
+TODO:
+plot featureless comparisons for each of the descriptors at one rotation
+
+One of the most well known and often used keypoint descriptors is Scale
+Invariant Feature Transforms (SIFT) \cite{Lowe04}. SIFT descriptors detects keypoints 
+based on Difference of Gaussians (DOG). This algorithm, developed in 2004
+has consistently been the top performer in terms of  
+scale and rotation invariance, though it is has the highest overhead
+of the descriptors discussed. Since SIFT, many SIFT-like descriptors have been 
+introduced such as SURF \cite{Bay-SURF08}, and ASIFT  \cite{ASIFT} to 
+reduce computation time.  
+\begin{figure}
+    \centering
+    \begin{minipage}{.5\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{no_features.jpg}
+        \captionsetup{width=0.9\linewidth}
+        \captionof{figure}{A typical image of sea ice captured from a UAV with few features and homogoneous texture. }
+         \label{fig:no_features}
+     \end{minipage}%
+     \begin{minipage}{.5\textwidth}
+         \centering
+        \includegraphics[width=.9\linewidth]{good_features.jpg}
+        \captionsetup{width=0.9\linewidth}
+        \captionof{figure}{A sea ice image with many corners and distinctive  features to use for feature matching. }
+             \label{fig:good_features}
+      \end{minipage}
+\end{figure}
+
+
+
+A successor to SIFT, Speeded-Up Robust Features (SURF) 
+yields similar feature performance to SURF, but with 
+faster computation time \cite{Bay-SURF08}. The performance improvement is 
+acomplished by describing keypoints with the responses of Haar-like filters. 
+Haar features are global-texture based. Both SIFT and SURF use an orientation 
+operator. 
+%Good foundation paper on multiscale approach \cite{Brown05} ??
+%- this seemed to have a good descript of sift: http://www.cs.cmu.edu/~rahuls/pub/cvpr2004-keypoint-rahuls.pdf
+
+%ORB
+Although SURF achieves some speed gain over SIFT, it is still not realistic 
+for real-time applications on platorms with limited capability \cite{Bekele13}. 
+Binary keypoint descriptors aim to provide lightweight and fast computation with 
+good performance by building the descriptor such that each bit is independent.
+This allows Hamming distance to be used rather than Eucliden distance to measure 
+similarity \cite{Bekele13}. TODO: should I change matching depending on Descriptor?
+Heinly showed that the speed improvement in matching binary desscriptors 
+result in only marginal matching performance penalties \cite{Heinly12}.
+
+The Oriented FAST and Rotated BRIEF descriptor, or ORB, 
+is a computationally efficient alternative to SIFT and SURF
+and can be used in real-time 
+on many platforms \cite{Rublee-ORB11}. 
+Like its name suggests, it works off of the very efficient FAST keypoint 
+detector \cite{Rosten-FAST06} and BRIEF descriptor \cite{Calonder-BRIEF10}.
+ORB overcomes the lack or rotational invariance in the BRIEF descriptor by 
+de-correlating BRIEF features under rotational invariance, however, ORB is
+only somewhat scale invariant.
+
+%BRISK
+%FREAK
+The FREAK descriptor, developed in 2012 by Alahi improves upon the BRISK
+descriptor \cite{Leutenegger-BRISK11} and was 
+inspired by the retinal pattern in the biological eye. 
+FREAKs are in general faster to compute with lower memory load than 
+ SIFT, SURF or BRISK \cite{Alahi-FREAK12}. Most approaches use 
+SURF keypoints for FREAK descriptors as 
+the they are invariant to rotation and scale changes.
+
+% A cascade of binary strings is computed by efficiently comparing image intensities over a retinal sampling pattern. FREAKs are in general faster to compute with lower memory load and also more robust than SIFT, SURF or BRISK. They are competitive alternatives to existing keypoints in particular for embedded applications.
+
+
+
+Zernike moment descriptors are a set of orthogonal polynomials that 
+work well in the presence of 
+rotation, noise,  and large scale changes in a computationally efficient manner. 
+In 2003, Pizarro introduced a zernike-feature based 
+approach to mosaic large scale featureless
+scenes underwater with lighting correction \cite{Pizarro03}.
+
+We utilize the classic Harris keypoints for fast corner finding. 
+Harris keypoints are detected at the local minima of an autocorrelation 
+function that is invariant to geometric image transformation \cite{Schmid98}. 
+
+TODO: read and cite these
+Used zernike to create mosaic - read more \cite{Zhanlong13}
+\cite{dudek}
+\cite{Zhanlong13, Pizarro03, Badra98, Badra99}
+\cite{Bin02}
+Use this for equations
+\cite{Ameyah07} 
+\cite{Hwang08}
+\cite{Chen10}
+Learn descriptors using conv net. 
+\cite{Simo15}
+%Zernike Polynomials 
+%complex polynomials that are orthogonal over the unit circle $x^2 + y^2 = 1$. 
+%They can be expressed in radial and angular components. 
+%
+%\label{eq:zernike polynomial}
+%V_{nm}(x,y) = V_{nm}(\rho, \theta) = R_{nm}(\rho)\emph{e}^{im\theta}
+%$
+%\emph{n} is a positive integer
+%\emph{m} is an integer such that $n-|m|$ is even and $|m|<=n$
+%$\rho$ is the magnitude of the vector from the origin to the point $(x,y)=x^2+y^2$
+%$\theta$ is the angle between the vector and the x-axis in a counter-clockwise direction
+
+
+
+Alahi et al. show that using a grid of well performing descriptors achieves better 
+matching than using a single one to match an image region \cite{Alahi10}. 
+%Features with a low success ratio in matching (about 0.5) are deleted from the 
+%map if at least 10 matches have been attempted. Mapmaintence allows deleting of non 
+%trackable features - for instance those captured on moving objects such as 
+%waves or people. 
+
+%The percentage of successful matches obtained by the point tracker is used to have an estimation about the level ofthehierarchywherethehomographycomputationshould start.Thesepercentagethresholdswereobtainedempirically byprocessinghundredsofaerialimages.Eachlevelinvolves thefollowingdifferentsteps:
+%.Complete homography. Least median of squares (LMedS) is used for outlier rejection and a M-Estimator to compute the final result. This model is used if more than the 65\% of the matches are successfully tracked.
+%. Affine homography. If the percentage of success in thetrackingstepisbetween40\% and65\%,thenthe LMedS isnotused,giventhereductioninthenumber ofmatches.A relaxedM-Estimator(softpenalization) is carried out to compute the model.
+%
+%Euclidean homography. If the percentage is below 40\%, the set of data is too noisy and small to apply non- linear minimizations. The model is computed using least-squares.
+%\cite{Caballero07}
+
+This approach utilizes 
+the knowledge that the UAV captured images in a spatial order as it was flying, 
+so we attempt to match images with neighboring timestamps first.
+This sequential approach is not necessary, but will decrease convergence time 
+as it limits the number images that must be searched in a typical mission. 
+Local motion around each feature point is expected to be mostly 
+translational with minimal roll and pitch of the camera. 
 
 
 
@@ -952,385 +1282,10 @@ have low spatial frequency and are combined across a wide region.
 Strong color changes, 
 show high spatial frequency and are fused over a small area. 
 
-\section{Related Techniques}
-\subsection{Structure From Motion}
-\subsection{Simultaneous Localization and Mapping (SLAM)}
-\chapter{Related Work}
-\label{chap:related}
-Although the area of image mosaicing has been widely studied for many years, 
-some problems remain elusive. 
-High altitude imagery and on-ground mosaicing such
-as panoramic image construction are not in our area of in-
-terest since they are dealing with different challenges.
-These include but are not limited to: 
 
-\begin{itemize}
-    \item{Recovering from poor overlap}
-    \item{Determining overlapping scenes with poor features}
-    \item{Images taken with drastic differences (day and night or change in seasons)} 
-    \item{Resolution and quality of output mosaic}
-    \item{Dynamic Scenes}
-    \item{Classification of terrain}
-\end{itemize}
 
-Prathap gives a thorough review of the current state of mosaicing \cite{Prathap16}. 
 
-Many researchers and engineers have utilized UAVs to gather images to form large-scale 
-photo mosaics \cite{ Caballero07, Yahyanejad10, Cheng10, Pritt14, Kekec14, Prasad16, Vousdoukas11, Wang11, Wang14}.
-Images collected with a UAV can often be quickly, but roughly  aligned 
-using data from sensors such as Global Positioning System (GPS) points and 
-Intertial Measurement Unit (IMU) estimates.
-However, these measurements are typically not 
-accurate or reliable enough to generate a visually appealling image. 
-Instead, most approaches for mosaicing UAV images use some form of a feature 
-based approach to match images. Problems tend to occur when there exists 
-low-overlap between images, moving objects in the survey area, or featureless 
-images. 
-
-Caballero uses the match success between images to limit the homography model selection. 
-Using a simpler model if fewer matches are available \cite{Caballero07}.  
- Lin utilizes a low-resolution global map to align images \cite{Lin07}
-
- Qian demonstrates the use of vehicle rotation rate
- information from gyros mounted to the vehicle to assist in the process 
- of matching camera features from frame to frame \cite{Qian01}. 
-
-Registration \cite{Barnea72, Shum-local98, Sawhney99}
-
-
-Cheng \cite{Cheng10} divides image sequences from UAV flight into small groups of 
-overlapping images and then performs local optimization based on the Extended Kalman 
-Filter (EKF). This corrects homographies in a local area before performing a 
-global optimization step. Civera \cite{Civera09} also 
-uses an Extended Kalman Filter to improve consistent mosaics, but from 
-a SLAM (Simultaneous Localization and Mapping) perspective. SLAM, a probablistic
-filtering approach which has recently become common in the field of 
-mobile robotics, allows a moving sensor to build a map of the world while 
-moving through it. Similarly, Civera uses the EKF to predict the location 
-in the next frame of a rotating camera. 
-This allows for 
-real-time, drift free mosaicing, though it was only demonstrated in a small scene. 
-
-Proposed a real-time approach of mosaicing images from UAVs for disaster 
-response. First, the images were downsampled and roughly aligned using only 
-GPS and IMU data, then as bandwidth allowed, the alignment was refined using 
-feature based methods \cite{TODO}
-
-In 2010, Botterill proposed using Bag-of-Words representation of images 
-to reduce the search space for overlapping images. This provides a cheap 
-approach for finding wide-baseline correspondences for mosaic building \cite{Botterill10}
-
-
-
-\section{Featureless Scenes}
-Prasad, et al investigated the problem of developing mosaics in quadcopter surveys 
-with gaps in features using imu information to improve convergence time.
-The approach was demonstrated on building walls with only small regions (paintings) 
-that provided keypoints\cite{Prasad16} 
-\cite{Schaffalitzky01}
-
-\cite{Olson10} Captured more than two images of the same scene with varying baselines to improve depth estimates.
-
-\cite{Bay05} matched scenes using line segments in addition to descriptors to match homogenous scenes like 
-architectural interiors. Line segments conveny geometrical and topological information while the region descriptors capture details 
-about local appearence. Made wide-baseline more reliable. Line segments are 
-not very descriptive. 
-Line segments extracted using a Canny edge detector. Edges are split at points 
-of high curvature. 
-
-Large area addition aided by navigational sensors 
-to generate 3D submaps that are merged using bundle adjustment \cite{Pizarro04}.
-
-
- \section{Dynamic Scenes}
-Small dynamic scene mosaics have been tackled in \cite{Fitzgibbon01, Rav-Acha07, Davis98, Uyttendaele01}. 
-However, our approach was to use a simpler, masking scheme to bar the feature 
-extraction algorithm from extracting keypoints from the dynamic portions of our 
-images. This is similar to the approach taken by Vousdoukas to mask sea and sea foam
-from shoreline images captured form an UAV in which he 
-manually selecting pixels associated with the 
-sea and foam and thresholding based on these intensities \cite{Vousdoukas11}. Because 
-Vousdoukas' mosaic was created along the shoreline, he was able to use 
-interesting keypoints from the shoreline to complete the mosaic using SIFT features. 
-
-Because image stitching techniques utilize features that are consistent amongst 
-overlapping images, dynamic or moving objects can cause false matches and incorrect 
-homography estimations. Our images are captured serially with a single camera so 
-that no two views of the scene are captured at the same moment. This means that 
-nonstationary 
-features in the scene are subject to change between images.
-
-In sea ice imagery, 
-the sea is subject to waves and ripples that may be extracted as features, but 
-will change over time and could result in false matches or no matches. 
-There are many methods for mosaicing a scene with dynamics in the static mosaic. 
-Some approaches eliminate all dynamic information in the scene, while others 
-attempt to encapsulate the changes between images by overlaying the movement 
-into the mosaic. 
-
-TODO: do keypoints ever fall on water?
-For the purposes of this system, the dynamic movement 
-of waves is not interesting information.
-We can exclude water from the feature extraction by first segmenting
-the image into ice and non-ice pixels. In addition to improving the feature 
-extraction process, we are also able to form an estimate of the sea ice coverage 
-for scientific and ship navigational purposes. 
-
-
-
-
-
-
-\begin{figure}
-    \centering
-    \begin{minipage}{.5\textwidth}
-        \centering
-        \includegraphics[width=.9\linewidth]{no_features.jpg}
-        \captionsetup{width=0.9\linewidth}
-        \captionof{figure}{A typical image of sea ice captured from a UAV with few features and homogoneous texture. }
-         \label{fig:no_features}
-     \end{minipage}%
-     \begin{minipage}{.5\textwidth}
-         \centering
-        \includegraphics[width=.9\linewidth]{good_features.jpg}
-        \captionsetup{width=0.9\linewidth}
-        \captionof{figure}{A sea ice image with many corners and distinctive  features to use for feature matching. }
-             \label{fig:good_features}
-      \end{minipage}
-\end{figure}
-
-\chapter{Feature Evaluation in Homogenous Images}
-\label{chap:features}
-
-Like, most modern approaches, we register images by selecting key 
-features from each image 
-and attempting to relate them to other images in the scene. 
-There exist a wide variety of feature extraction and description
-techniques that enable matching between visual correspondences despite 
-rotation, scaling, or environmental changes such as lighting 
-noise. 
-In addition to invariance, a high number of detected features is also desireable
-to improve matching. 
-Keypoints should have high information content as measured by 
-repeatibility rate and information content. 
-
-Feature detectors rely on the existence of edges, corners, or  blobs in 
-the image to match images. If none occur, then no features can be detected. 
-Feature detecting algorithms tend to have different strengths and weaknesses as 
-discussed in several studies \cite{Tuytelaars08, Mikolajczyk05, Heinly12, Bekele13}. 
-Bekele \cite{Bekele13} in particular proved a good 
-overview of popular feature descriptors and 
-detectors and their performance which guided our evaluation on sea ice dataset.
-Describing keypoints is difficult in ice surveys 
-because of the lack of distinguishable features on images that contain 
-only ice or only water. All ice images often contain a high degree of repetitive 
-simularity which means even distinctive features can be incorectly matched with 
-non-overlapping images. 
-
-Heinly showed that the descriptors should be adapted to the transofrmations 
-present in the data \cite{Heinly12}.
-
-Equation \ref{eq:putativematches} was introduced by \cite{Heinly12}.
-
-% Quantifying a match
-In the following sections, feature detectors and descriptors are discussed and 
-evaluated on our dataset based on a number of points: 
-
-%where high precision relates to a low false positive rate, and high recall relates to a low false negative rate. High scores for both show that the classifier is returning accurate results (high precision), as well as returning a majority of all positive results (high recall).
-
-
-\begin{itemize}
-    \item{Average number of keypoints}
-    \item{Precision of matches}
-    \item{Recall of matches} 
-    \item{Average number of good matches}
-\end{itemize}
-
-\begin{equation}
-recall = \frac{number of correct matches }{number of correspondences}
-\label{eq:recall}
-\end{equation}
-
-\begin{equation}
-1-precision = \frac{number of false matches }{number of matches}
-\label{eq:precision}
-\end{equation}
-
-\begin{equation}
-putative match ratio = \frac{number of putative matches }{maximum possible matches}
-\label{eq:putativematches}
-\end{equation}
-
-\begin{figure}
-\label{fig:rotate_results}
-\centering
-\includegraphics[width=\linewidth, height=.6\paperheight]{rotate.png}
-        \captionsetup{width=.9\linewidth}
-        \captionof{figure}{
-A comparison of different feature descriptors on two datasets of 60 images randomly selected over a variety of conditions. The dataset labeled "good features" contained images with strong corners and lines, while the dataset labeled "bad features" contained images with only snow or ice and not significant features. Each image was subjected to a change in rotation and scored on its ability to match to the original image using a brute-force matcher.  }
-\end{figure}
-
-\begin{figure}
-\label{fig:scale_results}
-\centering
-\includegraphics[width=\linewidth, height=.6\paperheight]{Scale.png}
-        \captionsetup{width=.9\linewidth}
-        \captionof{figure}{
-A comparison of different feature descriptors on two datasets of 60 images randomly selected over a variety of conditions. The dataset labeled "good features" contained images with strong corners and lines, while the dataset labeled "bad features" contained images with only snow or ice and not significant features. Each image was subjected to a change in scale and scored on its ability to match to the original image using a brute-force matcher.  }
-\end{figure}
-
-
-Today, the most common technique for monitoring sea ice is through data obtained 
-by satellites. 
-%A  perfect descriptor would give a recall equal to 1 for any precision
-
-Putative matches, proposed by Heinly, allows us to measure the 
-selectivity of the descriptor. 
-precision is also the inlier ratio (ransac). The precision greatly influences the performance of robust estimation techniques like RANSAC. RANSAC's runtime increases exponentially as the inlier ratio decreases \cite{Heinly12}. 
-
-%Percent of matches - quotient of dividing matches count on the minimum of keypoints count on two frames in percents.
-%Percent of matches - quotient of dividing matches count on the minimum of keypoints count on two frames in percents.
-%Percent of correct matches - quotient of dividing correct matches count on total matches count in percents.
-%Matching ratio - percent of matches * percent of correct matches. In all charts i will use "Matching ratio" ( in percents) value for Y-axis.
-
-
-Parameters in each of the detectors are 
-tuned so that 4000 features are detected in the reference image.  
-If more than 4000 features are detected in the image, only the first 4000 
-are used in the evaluation.  
-
-TODO:
-plot featureless comparisons for each of the descriptors at one rotation
-
-\section{SIFT}
-One of the most well known and often used keypoint descriptors is Scale
-Invariant Feature Transforms (SIFT) \cite{Lowe04}. SIFT descriptors detects keypoints 
-based on Difference of Gaussians (DOG). This algorithm, developed in 2004
-has consistently been the top performer in terms of  
-scale and rotation invariance, though it is has the highest overhead
-of the descriptors discussed. Since SIFT, many SIFT-like descriptors have been 
-introduced such as SURF \cite{Bay-SURF08}, and ASIFT  \cite{ASIFT} to 
-reduce computation time.  
-
-
-\section{SURF}
-A successor to SIFT, Speeded-Up Robust Features (SURF) 
-yields similar feature performance to SURF, but with 
-faster computation time \cite{Bay-SURF08}. The performance improvement is 
-acomplished by describing keypoints with the responses of Haar-like filters. 
-Haar features are global-texture based. Both SIFT and SURF use an orientation 
-operator. 
-%Good foundation paper on multiscale approach \cite{Brown05} ??
-%- this seemed to have a good descript of sift: http://www.cs.cmu.edu/~rahuls/pub/cvpr2004-keypoint-rahuls.pdf
-
-\section{ORB}
-%ORB
-Although SURF achieves some speed gain over SIFT, it is still not realistic 
-for real-time applications on platorms with limited capability \cite{Bekele13}. 
-Binary keypoint descriptors aim to provide lightweight and fast computation with 
-good performance by building the descriptor such that each bit is independent.
-This allows Hamming distance to be used rather than Eucliden distance to measure 
-similarity \cite{Bekele13}. TODO: should I change matching depending on Descriptor?
-Heinly showed that the speed improvement in matching binary desscriptors 
-result in only marginal matching performance penalties \cite{Heinly12}.
-
-The Oriented FAST and Rotated BRIEF descriptor, or ORB, 
-is a computationally efficient alternative to SIFT and SURF
-and can be used in real-time 
-on many platforms \cite{Rublee-ORB11}. 
-Like its name suggests, it works off of the very efficient FAST keypoint 
-detector \cite{Rosten-FAST06} and BRIEF descriptor \cite{Calonder-BRIEF10}.
-ORB overcomes the lack or rotational invariance in the BRIEF descriptor by 
-de-correlating BRIEF features under rotational invariance, however, ORB is
-only somewhat scale invariant.
-
-%BRISK
-%FREAK
-\section{FREAK}
-The FREAK descriptor, developed in 2012 by Alahi improves upon the BRISK
-descriptor \cite{Leutenegger-BRISK11} and was 
-inspired by the retinal pattern in the biological eye. 
-FREAKs are in general faster to compute with lower memory load than 
- SIFT, SURF or BRISK \cite{Alahi-FREAK12}. Most approaches use 
-SURF keypoints for FREAK descriptors as 
-the they are invariant to rotation and scale changes.
-
-% A cascade of binary strings is computed by efficiently comparing image intensities over a retinal sampling pattern. FREAKs are in general faster to compute with lower memory load and also more robust than SIFT, SURF or BRISK. They are competitive alternatives to existing keypoints in particular for embedded applications.
-
-
-
-\section{Harris Keypoints with Zernike Descriptors}
-Zernike moment descriptors are a set of orthogonal polynomials that 
-work well in the presence of 
-rotation, noise,  and large scale changes in a computationally efficient manner. 
-In 2003, Pizarro introduced a zernike-feature based 
-approach to mosaic large scale featureless
-scenes underwater with lighting correction \cite{Pizarro03}.
-
-We utilize the classic Harris keypoints for fast corner finding. 
-Harris keypoints are detected at the local minima of an autocorrelation 
-function that is invariant to geometric image transformation \cite{Schmid98}. 
-
-TODO: read and cite these
-Used zernike to create mosaic - read more \cite{Zhanlong13}
-\cite{dudek}
-\cite{Zhanlong13, Pizarro03, Badra98, Badra99}
-\cite{Bin02}
-Use this for equations
-\cite{Ameyah07} 
-\cite{Hwang08}
-\cite{Chen10}
-Learn descriptors using conv net. 
-\cite{Simo15}
-%Zernike Polynomials 
-%complex polynomials that are orthogonal over the unit circle $x^2 + y^2 = 1$. 
-%They can be expressed in radial and angular components. 
-%
-%\label{eq:zernike polynomial}
-%V_{nm}(x,y) = V_{nm}(\rho, \theta) = R_{nm}(\rho)\emph{e}^{im\theta}
-%$
-%\emph{n} is a positive integer
-%\emph{m} is an integer such that $n-|m|$ is even and $|m|<=n$
-%$\rho$ is the magnitude of the vector from the origin to the point $(x,y)=x^2+y^2$
-%$\theta$ is the angle between the vector and the x-axis in a counter-clockwise direction
-
-
-
-\section{Feature Discussion}
-Alahi et al. show that using a grid of well performing descriptors achieves better 
-matching than using a single one to match an image region \cite{Alahi10}. 
-%Features with a low success ratio in matching (about 0.5) are deleted from the 
-%map if at least 10 matches have been attempted. Mapmaintence allows deleting of non 
-%trackable features - for instance those captured on moving objects such as 
-%waves or people. 
-
-%The percentage of successful matches obtained by the point tracker is used to have an estimation about the level ofthehierarchywherethehomographycomputationshould start.Thesepercentagethresholdswereobtainedempirically byprocessinghundredsofaerialimages.Eachlevelinvolves thefollowingdifferentsteps:
-%.Complete homography. Least median of squares (LMedS) is used for outlier rejection and a M-Estimator to compute the final result. This model is used if more than the 65\% of the matches are successfully tracked.
-%. Affine homography. If the percentage of success in thetrackingstepisbetween40\% and65\%,thenthe LMedS isnotused,giventhereductioninthenumber ofmatches.A relaxedM-Estimator(softpenalization) is carried out to compute the model.
-%
-%Euclidean homography. If the percentage is below 40\%, the set of data is too noisy and small to apply non- linear minimizations. The model is computed using least-squares.
-%\cite{Caballero07}
-
-This approach utilizes 
-the knowledge that the UAV captured images in a spatial order as it was flying, 
-so we attempt to match images with neighboring timestamps first.
-This sequential approach is not necessary, but will decrease convergence time 
-as it limits the number images that must be searched in a typical mission. 
-Local motion around each feature point is expected to be mostly 
-translational with minimal roll and pitch of the camera. 
-\section{Error Metrics} 
-standard measurments, cross correlation between images - 
-speed ...
-
-
-\section{Validation - Synthetic Mosaic}
-A synthetic survey is generated from a single image by dividing the image into
-a grid overlapping sub-images.  This provides a planar scene with an ideal 
-pinhole camera. Simple translations produce the resulting image. Another test 
-introduced rotation and scaling into each sub-image. 
-
-
-\chapter{Categorizing Ice}
+\chapter{Ice Segmentation and Classification}
 
 Segmentation of an image into pixel classes can be thought of as either a 
 supervised problem which requires training a set of classfiers from data  
@@ -1358,7 +1313,59 @@ Thus, the Jaccard index is zero if there are no correctly classified pixels and 
 \label{chap:density}
 
 \chapter{Experiments and Results}
+
 \label{chap:results}
+\section{Experimental Setup}
+Data used for this study was collected in the Beaufort Sea, approximately 
+350 km north of Alaska's northern coastline. The UAV perfomed 12 flights 
+over 5 days from various locations at altitudes varying from TODO m to TODO m. 
+
+TODO: total number of photos, total coverage area
+\begin{figure}
+    \centering
+    \begin{minipage}{.5\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth,height=0.6\linewidth]{uav_snow_d.jpg}
+        \captionsetup{width=0.9\linewidth}
+        \captionof{figure}{The Phantom FPV Flying Wing EPO UAV used to gather data over sea ice. This vehicle was equipped with a TODO camera for capturing images. }
+         \label{fig:phantom}
+     \end{minipage}%
+     \begin{minipage}{.5\textwidth}
+         \centering
+        \includegraphics[width=.9\linewidth,height=0.6\linewidth]{launch_uav_d.jpg}
+        \captionsetup{width=0.9\linewidth}
+        \captionof{figure}{UAVs have small space requirments for both storage and flight, making them ideal scouts for working off of a ship.}
+             \label{fig:shipscout}
+      \end{minipage}
+\end{figure}
+
+
+\subsection{Flight Vehicle}
+The vehicle used in our experiments is a fixed-wing UAV pictured in Figure \ref{phantom}. This vehicle has an endurance of 
+approximately TODO. The vehicle has autonomous flight system which follows 
+a specified trajectory over the earth's surface at a prescribed altitude. 
+
+\subsection{Sensor Payload}
+The vehicle caries a payload of low-cost IMU, GPS receiver and a 
+downwards-mounted color camera. The GPS receiver computes earth-referenced position at TODO Hz with an accuracy of TODO. Photos are captured at a resolution 
+of 6000x4000 pixels at a rate of TODO Hz. An onboard computer logs sensor data 
+which is processed after the flight. 
+
+\section{Results}
+
+\section{Classification}
+As discussed in Chapter \ref{chap:classification}, TODO ice images were 
+labeled by hand to provide ground truth for the classification results. 
+
+Cross validation
+Confusion Matrix
+
+
+\subsection{Validation - Synthetic Mosaic}
+A synthetic survey is generated from a single image by dividing the image into
+a grid overlapping sub-images.  This provides a planar scene with an ideal 
+pinhole camera. Simple translations produce the resulting image. Another test 
+introduced rotation and scaling into each sub-image. 
 demo 
 translation - minimal overlap, detected that there was no rotation or scaling.
 rotation   - what angle limit?
@@ -1366,12 +1373,24 @@ rotation   - what angle limit?
 scaling - images should be scaled to size of smallest before stitching
 -- show plot of actual scaling vs calculated
 demo 
+\subsection{Flight Map}
+
 \chapter{Conclusion and Future Work}
 \label{chap:conclusion}
+This paper has presented a framework for surveying sea ice with a UAV equipped with a color camera. This work opens the world of sea ice reconissance and 
+research with its unique processing capability at a low cost. A classification algorithm is implemented to classifify sea ice and a mosaicing routine is 
+introduced to produce high-quality low-altitude maps. 
 
+The final classification results indicate that the classifier performs well 
+when distinguishing between sea and ice and between ice types.. 
+
+Adaptive collection techniques to allow the UAV to search for areas that is has
+not covered, or to prioritize coverage of interesting areas, such as regions with 
+large icebergs. 
+Iceberg elevation or size calculations
 
 \pagebreak{}
-\section{References}
+
 \bibliography{biblio}
 \begin{vita}
 This should be a one-page short vita.
