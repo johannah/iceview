@@ -33,7 +33,7 @@
 \floatname{algorithm}{\protect\algorithmname}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
-\usepackage{UTSAthesis}      
+\usepackage[ms]{UTSAthesis}      
 \usepackage{times}            
 \usepackage{latexsym}
 
@@ -279,30 +279,44 @@ Remote sensing is the term used to describe the process of obtaining data withou
 physical contact. The field of remote sensing, like most modern fields that 
 are associated with data, has experienced an explosion in the amount, quality, and 
 accessibility of data. 
+ The images that we are working with in this 
+thesis are from the visible spectrum and try to represent the world as they are seen 
+with the human eye, however, often remote sensing is performed with other types of sensors. Passive sensors, like cameras, gather electromagnetic radiation that 
+it has not emitted itself. Passive sensors are also often used in other electrmagnetic 
+frequency bands like infrared or thermal bands for remote sensing.  Remote sensing data
+can also be gathered using active sensors such as RADAR (Radio Detection And Ranging) or LiDAR (LIight Detection and Ranging) . In the case of active sensors, 
+the sensor emits energy at a particlar band and measures the reflectance returned. Remote sensors also take form in the lower, acoustic end of the spectrum in the case of SONAR (SOund Navigation And Ranging) which measures 
+reflectance in the acoustic spectrum (usually underwater). 
 
-
-Traditional remote sensing typically referred to spatial data  captured from platforms such as satellites or manned aircraft.  
+Traditionally, remote sensing typically referred to spatial data captured from platforms such as satellites or manned aircraft.  
 These platforms generally 
-observe the earth from a higher altitude and thus a lower resolution than what we are concerned with here and 
-thus have looser requirements for stitching accuracy. For example, a popular instrument 
-for observing the earth from satellite is MODIS, the Moderate Resolution Imaging 
-Spectroradiometer. MODIS is housed on the Terra and Aqua satellites which view the 
-entire earth surface every 1 to 2 days at 36 distinct wavelengths with a spatial 
-resoution of 500 m in the visible spectrum \cite{MODIS}. 
+observe the earth from a higher altitude and thus a lower 
+resolution than what we are concerned with here and 
+thus have looser requirements for stitching accuracy. For example, a 
+popular remote sensing instrument provided by NASA 
+is MODIS \cite{MODIS}, the Moderate Resolution Imaging 
+Spectroradiometer. A MODIS is housed on two satellites that together 
+capture most of the 
+earths surface at 36 different wavelengths every 1 to 2 days. Though this is 
+impressive coverage, the imagery is only at a resolution of about 
+ 500 m in the visible spectrum. 
 
 Data collected from small 
-unmanned aircraft is much more flexible in terms of capture frequency and location. However, potential coverage area is also much more limited with a single sensor when compared to high-altitude systems.  Although our system 
+unmanned aircraft is much more flexible in terms of capture frequency and 
+location. However, potential coverage area is also much more limited with a 
+single sensor when compared to high-altitude systems.  Although our system 
 seeks to extend remote sensing capabilities of sea ice to UAVs, we will further 
 investigate past work in this field performed with high altitude systems  in 
 Section \ref{sec:highalt}. In the following section, we cover UAVs in more detail 
 to lay the groundwork for the remainder of the paper. 
 
 With the abundance of remote sensing data has come an increasing need for 
-automated methods of interpreting the data.  In the Sections \ref{sec:ice} and 
+automated methods of interpreting the data.  In Sections \ref{sec:ice} and 
 \ref{sec:map} we provide background on two data products that enable faster 
-qualification and assesment of the terrain captured by remote sensing. 
+ assesment and interpretation of the terrain captured by digital cameras and 
+ that we improve upon in this thesis.
 
-\section{Unmanned Aerial Vehicles}
+\section{Unmanned Aerial Vehicles as a Platform for Visual Remote Sensing}
 Remote sensing has long been dominated by 
 governments and commercial organizations, but recent 
 advances in unmanned aerial vehicles have brought flight to 
@@ -310,89 +324,146 @@ the average consumer and researcher.
 Individual UAVs vary widely in terms of payload, endurance, weight, 
 and speed and a comprehensive review is out of the scope of this thesis.
 For a more complete overview of UAV capilities and history, 
-please refer to a review by Colomina \cite{Colomina14}. For now, we'll focus on 
-the sensors and qualities needed for UAVs capable of performing ice coverage missions. 
+please refer to a review by Colomina \cite{Colomina14}. For now, we'll give a 
+brief introduction to a minimal set of sensors needed to perform our experiments.  
 
 One important consideration for shipboard 
 operations is the space needed for launch and recovery. There are two general 
 types of architectures of UAVs: fixed wing and rotary winged. Fixed wing vehicles,
-which shaped like a typical airplane, are 
-typically more stable and have longer range than rotary wing vehicles, which propel themselves like a helicopter. However, fixed-wing vehicles have 
-a more complicated deployment, requiring horizontal space for takeoff and landing. This can be difficult on a ship with limited deck space.
+which are shaped like a airplane, are 
+typically more stable and have longer range than rotary wing vehicles, which
+propel themselves like a helicopter. However, fixed-wing vehicles have 
+a more complicated deployment when compared to rotary-winged vehicles, 
+requiring horizontal space for takeoff and landing. 
+This can be difficult on a ship with limited deck space. Rotary-winged vehicles, 
+like helicopters are generally more agile than fixed-wing aircraft which can 
+be advantageous in many situations. 
 
-UAVs also vary greatly 
-in their computational capabilities and complexity. Many are capable of autonomous flight, while others rely solely on remote control by humans. For 
+UAVs vary greatly 
+in their computational capabilities and complexity. Many are capable of 
+autonomous flight, while others rely solely on remote control by humans. For 
 the purpose of this research, 
 we disregard flight planning and control and focus only on the data products collected 
 from the platform. 
 
+\subsection{UAV Sensors}
 Nearly all systems will have some sensing capabilities necessary for navigation, 
 though the accuracy and capabilities of these devices can vary widely and 
 have enormous impact on the quality of flight and data products captured.
 
-\subsection{Global Positioning System (GPS)}
+\subsubsection{Global Positioning System (GPS)}
 The Global Positioning System, frequently shortened to GPS, is a system which 
 provides the location and time when a receiver is within view 
 of at least four system's satellites. A GPS receiver monitors the 
 the time of flight for messages passed between each of the visible satellites and the receiver and uses this to perform a calculation of the receiver position. 
 This position is presented as latitude, longitude, 
 and elevation from mean sea level. In our system, GPS points are the main method 
-of UAV localization. Although the GPS provides frequent updates for the vehicle position, this calculation contains some ammount of error that is almost always too large to perform image stitching at any reasonable resolution. 
+of UAV localization. Although the GPS provides frequent updates for the vehicle position, this calculation contains some ammount of error that is almost always too large to perform image stitching at any reasonable resolution. GPS accuracy 
+can vary depending on atmospheric effects and receiver quality, but generally 
+location is reported correctly to within a few meters. 
 
-TODO: GPS accuracy 
 
-\subsection{Inertial Measurement Unit (IMU)}
-An inertial measurement unit (IMU) is a sensor utilizes accelerometers, 
-gyroscopes, and magnetometers to estimate movement and position. 
+\subsubsection{Inertial Measurement Unit (IMU)}
+An inertial measurement unit (IMU) is a sensor that utilizes accelerometers, 
+gyroscopes, and magnetometers situated orthogonally to each other to estimate the pitch, roll, and heading. 
+This device provides important information  
+ for both navigation (especially in the absense of GPS) and 
+for determining how images captured from the UAV are oriented on the earth. 
+Though IMUs are useful for rough estimates of pose, they tend to suffer from 
+accumulated error that makes them undesireable for use for long term navigation.
 
-\subsection{Digital Cameras}
-Digital cameras are ubiquitous and convienent sensors for
-capturing and recording a specific 
-range of electromagnetic radiation. The images that we are working with in this 
-thesis are from the visible spectrum and represent images as they are seen 
-with the human eye. 
-TODO: talk about focal length - lens properties, resolution
 
+
+\subsubsection{Digital Cameras}
+Digital cameras have become ubiquitous and convienent sensors for
+capturing and recording the space around us. They are optical instruments that record light using an image sensor and record it to memory. 
+
+There are several parameters that are important when considering cameras as a
+sensor. The lens of the camera
+serves the role of focusing light onto the light sensor. 
+The focal length of the lens is the distance between the lens and 
+the image sensor. Image resolution is a measure of how much detail an image holds. A higher resolution means that an image 
+sensor is able to better observe the smallest object for a given lens. We typically refer to resolution by referring to the number of pixels in RowsxColumns that are presented in am image where a pixel is the smallest 
+addressable element in the image. 
+
+
+
+TODO: calibration?
+
+Moving platforms which utilize cameras for mapping are typically configured 
+as narrow-baseline or wide-baseline. 
+Narrow-baseline stereo vision, or simply 
+stereo vision, involves mounting two cameras at a known distance from each other 
+and capturing images simultaneously from both sensors.  This is advantageous in 
+many situations because it allows us to calculate the offset between the same 
+object captured in the two images
+when compared to the known baseline between the cameras.  This setup can 
+be used for 3D mapping and distance calculation of objects captured by both 
+cameras \cite{Olson10}.
+Wide-baseline, or monocular systems capture the scene from different positions 
+using the same camera. Unlike stereo vision, monocular vision systems 
+do not have an easy method of determining the distance to objects in photos 
+from a single location and must rely on movement of the sensor to characterize objects from diffferent viewpoints. Though narrow-baseline systems are attractive 
+for mapping 3D scenes, they are fundamentally limited in their ability to measure 
+depth by the distance of the baseline. 
 The accuracy of stereo degrades as the distance to the scene increases and is 
-lower with a larger baseline distance. A large baseline is not feasible on many
+lower with a larger baseline distance. 
+In addition, a large baseline is not feasible on many
 platforms, especially airborne systems. Rather than using two fixed cameras 
-capturing the scene simultaneously, we can use a wide-baseline stereo system.
-Wide-baseline stereo systems capture the scene from different positions 
-using the same camera. 
-Larger baseline can allow for a more accurate depth estimation of distant 
-terrain, given that the location estimates of the camera position are accurate. This 
-position estimation is inaccurate when compared to the strictly known 
-viewpoint disparity in traditional stereo vision systems. Determining the overlapping scene with wide-baseline can be more difficult than traditional 
-systems, because there is often a larger difference in perspective.  \cite{Olson10}
+capturing the scene simultaneously, we use a wide-baseline, monocular system.
+This distance estimation is inaccurate when compared to the strictly known 
+viewpoint disparity in traditional stereo vision systems and determining the o
+overlapping scene with wide-baseline can be more difficult than traditional stereo 
+systems, because there is often a larger difference in perspective.
+Since the influential paper by Schmid and Mohr \cite{Schmid97} on wide-baseline stereo, many new algorithms have been introduced for making sense of this type of data. We will discuss this more in the next section. 
+
+
 
 
 \section{Vision Based Mapping}
+The problem of determining correspondence between two images is a well 
+studied problem in computer vision. 
+
+Structure from motion (SFM) \cite{Koch98, Pollefeys04} use cameras to infer 
+depth from the scene nd then reconstruct the terrain in 3D using
+image pairs and esitimating pose of the camera. Don't scale to long sequences 
+\cite{MonoSLAM}
+and for full 3D 
+reconstruction \cite{Morimoto97, Shum-3D98}. 
+
+Simultaneous Localization and Mapping (SLAM) moving sensor platform constructing 
+a representation of its environment whil also estimation its own motion using 
+sequential Bayestian inference. SLAM is currently irrelevent for our goal of
+providing good estimates of sea ice in a setting which our platform neccessarily 
+has good localization through GPS. 
+Though developments like MonoSLAM  \cite{MonoSLAM} from Davison et al are able to recover the 3D trajectory of a single camera moving through a scene. 
 
 
 
-
-
-\subsection{Image Mosaics}
-An image mosaic is a synthetic wide-angle camera view which is built from a set of smaller images with 
-an overlapping field of view. 
-Image mosaicing has been extensively used to gain a greater viewpoint of the world. 
+An image mosaic is a synthetic wide-angle camera view which is built from a set of smaller images with an overlapping field of view. 
+Image mosaicing has been extensively used to gain a greater viewpoint of the world and there exists a large and robust body of work for creating mosaics from digital photographs \cite{Milgram75,  Szeliski95, Schmid97, Shum00, Brown03 } and  
+video \cite{Szeliski96, Steedly05}. 
 Historically, images were captured on air balloons and airplanes and then printed 
-and aligned by hand. In modern times, digital cameras and smartphones are capable of 
-automatically stitching panoramas on a small platform. 
-There exists a large and robust body of work for creating mosaics from digital photographs
-\cite{Milgram75,  Szeliski97, Shum00, Brown03 },
-video \cite{Szeliski96, Steedly05} and for full 3D 
-reconstruction \cite{Morimoto97, Shum-3D98}. These methods are more fully 
-reviewed by Szeliski \cite{Microsoft}, 
-Prathap \cite{Prathap16} and Zitova \cite{Zitova03}.
-Since the influential paper by Schmid and Mohr \cite{Schmid97} on wide-baseline stereo, many new algorithms have been introduced.
+and aligned by hand. In modern times however, digital cameras and smartphones 
+are capable of automatically stitching small panoramas with limited 
+computational capability. 
+Panoramas are a less general form image mosaicing in which camera motion is 
+limited to rotation. It serves as a platform where much research is perfomed, but 
+is too simplistic of a model for our work. 
+Images captured from low-altitude UAV are challenging when compared to 
+panoramic construction
+or low-resolution satellite image mosaicing. 
 
 
-TODO: panoramic vs mosaic
-Mosaics with extended field of view benefit 
-from the relatively large and equal distance to the scene in each image. 
-- taken in such scenarios are challenging as compared to panoramic construction
-or other mosaicing methods such as satellite image mosaicing. 
+
+Most of the work and current research is found in the first step, as determining 
+overlapping scenes from different viewpoints or in the face of drastic changes 
+is still quite difficult.  Common changes in scene include 
+differences in illumination, a rotated view, scaling, or moving objects. In the 
+following sections, we'll give a step-by-step introduction to the process of 
+image mosaicing with historical context and then we'll provide an overview of 
+the current state of research related to the problems faced in our mosaicing problem.
+For a more thourough review of the  history and techniques for building image mosaics see work by Szeliski in \cite{Microsoft}, Prathap in \cite{Prathap16} and  Zitova in \cite{Zitova03}.
 
 Constructing an image mosaic typically consists of several general steps:
 
@@ -402,6 +473,300 @@ Constructing an image mosaic typically consists of several general steps:
     \item{\textbf{Register images onto a common frame.}}
     \item{\textbf{Blend image seams to improve appearance.}}
 \end{enumerate}
+ 
+An image mosaic can be computed without any knowledge of 
+the internal camera calibration parameters such as focal length, 
+optical center, or relative camera motion between frames.  We also don't necessarily need to know any information about the UAV's position when the 
+images were captured, as this will all be calculated by the mosaicing process, however this metadata can be very useful for improving the mosaic incrementally, and for overcoming regions in which there are few image features. 
+
+\subsection{Detecting Image Overlap}
+Relating the images 
+requires overcoming noise and finding unrelated, unknown translations, scaling, 
+and rotations between images. 
+Usually, a reasonable amount of scene overlap (about 15-30\% overlap) with distinctive features 
+is typically required to successfully deterimine if two images should be stitched together. 
+
+Methods of determining image similarity generally falls into two camps:
+direct and feature based approaches. Direct methods perform correlations or 
+convolution operations over the prospective
+images to measure their similarity. This involes 
+a computation across all of the pixels in the image and tends to be
+slow and memory intensive 
+\cite{Lucas81, Barnea72, Szeliski95, Szeliski97, Shum-local98, Irani00}. 
+However, direct methods are able to solve for motion of the 
+camera and the correspondence of every pixel at the same time. Because this approach 
+compares pixel values directly, it is prone to falter under illumination changes. 
+The more modern approach is feature based..
+Feature
+based methods only measure the similarity of images based on 
+interesting regions of the image, such as lines, blobs, or edges. 
+The interesting regions are called \emph{features} 
+or \emph{keypoints}. Keypoints within the image must be found algorithmically 
+by a keypoint detection algorithm. Then the keypoint is described by a 
+\emph{descriptor} using a descriptor algorithm.  Descriptors have been developed so 
+that they are invariant to many of the transformations that plague images. 
+By comparing images using only their interesting features, the motion of the 
+camera can be solved for using only the
+parts of the image in which correspondence is easy to detect. This reduces 
+computational waste and improves accuracy.
+The geometry calculated using the descriptors 
+is then used to transform all of the pixels in 
+the image. 
+
+The feature based technique was first described by Schmid, who utilized Gaussian derivitives 
+to describe a keypoint in a manner that was rotationally invariant \cite{Schmid97}.
+Feature based methods are typically the modern approach because they are 
+generally less computationally intensive than direct methods and because the 
+feature descriptors can be developed to be invariant to image
+tranformations \cite{Schmid98, Lowe99, Brown03, Hu06, Elibol08}. 
+Like most modern methods, we utilize a feature based approach to 
+determine image overlap. 
+From this point onward in this paper, 
+we will assume that overlap detection 
+is performed using the feature based approach. 
+Reliable  extraction of a manageable number of potentially 
+corresponding features is a crucial prerequisite to successful mosaicing. The 
+feature dectector and descriptor choice is of significant importance. 
+
+One of the most well known and often used keypoint descriptors is Scale
+Invariant Feature Transforms (SIFT) \cite{Lowe04}, which was introduced by Lowe in 2004. SIFT descriptors detects keypoints 
+based on Difference of Gaussians (DOG). 
+This algorithm
+has consistently been the top performer in terms of  
+scale and rotation invariance, though it is has considerable overhead. 
+Since the introduction of SIFT, many SIFT-like descriptors have been 
+introduced to 
+reduce computation time.  
+Speeded-Up Robust Features (SURF) \cite{Bay-SURF08}, for instance,
+yields similar feature performance to SURF, but with 
+faster computation time. The performance improvement is 
+acomplished by describing keypoints with the responses of Haar-like filters. 
+Haar features are global-texture based. Both SIFT and SURF use an orientation 
+operator.  Both SURF and SIFT use vector-based features, usually with a length of $128$ values that can be slow to compare. 
+%Good foundation paper on multiscale approach \cite{Brown05} ??
+%- this seemed to have a good descript of sift: http://www.cs.cmu.edu/~rahuls/pub/cvpr2004-keypoint-rahuls.pdf
+
+%ORB
+Although SURF achieves some speed gain over SIFT, it is still not realistic 
+for real-time applications on platorms with limited capability \cite{Bekele13}. 
+Binary keypoint descriptors aim to provide lightweight and fast computation with 
+good performance by building the descriptor such that each bit is independent.
+This allows Hamming distance to be used rather than Eucliden distance to measure 
+similarity \cite{Bekele13}.
+Heinly showed that the speed improvement in matching binary desscriptors 
+result in only marginal matching performance penalties \cite{Heinly12}.
+
+ORB \cite{Rublee-ORB11} or Oriented FAST and Rotated BRIEF descriptor is one of these computationally 
+efficient binary descriptors that can be used in real-time for many applications. 
+Like its name suggests, it works off of the very efficient FAST keypoint 
+detector \cite{Rosten-FAST06} and BRIEF descriptor \cite{Calonder-BRIEF10}.
+ORB overcomes the lack or rotational invariance in the BRIEF descriptor by 
+de-correlating BRIEF features under rotational invariance, however, ORB is
+only somewhat scale invariant.
+
+The FREAK \cite{Alahi-FREAK12} descriptor , introduced in 2012 by Alahi improves upon the BRISK
+descriptor \cite{Leutenegger-BRISK11} and was 
+inspired by the retinal pattern in the biological eye. 
+FREAKs are in general faster to compute with lower memory load than 
+ SIFT, SURF or BRISK. 
+
+
+We also consider the Zernike descriptor which has been used successfully for 
+matching images in low-contrast scenes \cite{Pizarro03}.  Zernike moment 
+descriptors are a set of orthogonal polynomials that 
+work well in the presence of 
+rotation, noise,  and large scale changes in a computationally efficient manner. 
+We utilize the classic Harris keypoints \cite{Harris} for fast corner finding. 
+Harris keypoints are detected at the local minima of an autocorrelation 
+function that is invariant to geometric image transformation \cite{Schmid98}. 
+\cite{Chen10}
+\cite{Hwang08}
+
+
+TODO: read and cite these
+Used zernike to create mosaic - read more 
+\cite{Zhanlong13}
+\cite{dudek}
+\cite{Badra98, Badra99}
+\cite{Bin02}
+Use this for equations
+\cite{Ameyah07} 
+\cite{Hwang08}
+\cite{Chen10}
+
+Learn descriptors using conv net. 
+\cite{Simo15}
+\cite{Doersch15}
+\cite{MountainView}
+
+Alahi et al. show that using a grid of well performing descriptors achieves better 
+matching than using a single one to match an image region \cite{Alahi10}. 
+
+
+
+In Chapter \ref{chap:feature} we evaluate different feature descriptors against 
+our dataset.
+
+\subsubsection{Matching Features}
+After keypoints are extracted from two images, they must be compared for 
+similarity to determine if the images contain regions of the same scene. 
+The correctness of the final mosaic is highly dependent on the 
+accuracy of each of the calculated 
+geometric relationship between overlapping images. 
+
+
+Binary-valued feature descriptors (such as BRISK, ORB, or BRIEF) allow efficient 
+matching when compared to 
+vector-based features. Binary features can be quickly compared using the 
+Hamming distance between descriptors. For Vector-based features such as SIFT 
+and SURF, approximate nearest-neighbor search is used to match features. 
+
+TODO:  know this
+Euclidean is used for vector-based descriptors like SURF and SIFT. L2-norm is 
+used for descriptors of type float or double, and Hamming distance is used for 
+binary descriptors. 
+Non brute force methods can also be used for approximate matching such as the 
+Flann matcher and Approximate nearest neighbors. 
+Maximum Likelihood
+Least Median of Squares (LMS),
+---
+
+ 
+Incorrect matches, which are especially common among images with 
+repetitive features, should be filtered out if possible. 
+Lowe showed that if the two best matches were close in distance, then the 
+probability of a false match was high \cite{Lowe04}. To combat this, he 
+proposed a simple \emph{Ratio Test}
+to measure the distance of the best match over the distance 
+of the second best match and eliminated the match if it was greater than a theshold. 
+
+
+\subsection{Defining the Transformation}
+After the corresponding pixels 
+between overlapping images have been identified, the next step in the process 
+of developing a mosaic is to estimate
+the relationship between the images.
+This relationship is defined by a homography seen in Equation \ref{eq:homo}, which is a transformation matrix, $H$ that maps points on one image, $i$, to corresponding points on a reference image or mosaic in our case, $i'$. 
+The transformations 
+can be translation, similarity, affine, or projective which have 2, 4, 6, and 8 parameters respectively. 
+
+
+\begin{equation}
+x'=H*x
+\label{eq:homo}
+\end{equation}
+
+\begin{equation}
+x'=Ax+t
+\label{eq:affine}
+\end{equation}
+
+
+We will discuss each 
+of these transformations in the following paragraphs as they are defined in 
+\cite{SzeliskiBook}.  The most complex transformation considered,
+a projective transform, only preserves straight lines and is the farthest an 
+image can be transformed. This type of transformation is used in many mosaicing approaches, but can result in errors in instances with low overlap between 
+images or when there are few distinctive features available \cite{Wang11}. We instead consider only affine tranformations. 
+An affine tranformation (defined in Equation \ref{eq:affine} describes scale, rotation, translation, and skew 
+between two 2D planes in 2D space. This model is unable to 
+explain 3D motions between two image planes, but provides superior 
+stability when compared to projective transformation. 
+In near-flat  areas,  the 
+errors of object height projections are usually negligible. Thus, the 
+affine  transformation  can  be  directly  implemented.  
+For our sea ice imagery, we take advantage of the 
+large distance to the scene and the generally planar terrain surface and
+ adopt a model which assumes equal distance to each object in the image. This 
+ allows the use of the more stable  
+utilize affine transformation to translate the image coordinates.
+If a UAV  were able to achieve a perfect downward-facing camera survey over flat terrain, a similarity transfom 
+which is defined by rotation, translation, and scale would be sufficient to describe the 
+motion between images, though this is often not practical. 
+Even simpler applications, such as a panorama building witha rotating camera, 
+only need simple 2D translation and rotation to align images.  
+
+A robust approach determining the homography is RANSAC or "RANdom SAmple 
+Consensus. RANSAC \cite{RANSAC} is an iterative parameter estimation technique 
+that is widely in image registration problems.  It works by repeatedly taking random 
+pixel matches from a set of data, fitting them to a proposed model, and then measuring 
+the error from that model against all matches. 
+For each proposed model, all of the matches are classified as either inliers or outliers by calculating the residual 
+error  with respect to the model.  
+This process is performed until a maximum 
+iteration is hit or a model is estimated which meets a stopping criteria. Then 
+the best model (with the least residual) is fit for all of the data. 
+
+
+\subsection{Projection Model}
+
+
+The calculated homography 
+is used to warp the image onto the reference plane, sometimes called a compositing surface. For our work, which involves a  largely translational camera,
+a planar compositing 
+surface is most appropriate. A planar surface preserves perspective so that straight lines 
+in the scene are stright in the mosaic. Other applications, such as with a rotational camera as in a typical panorama is to use a cylindrical or spherical 
+projection so that the surface is curved like a sphere. 
+
+
+\subsection{Optimization}
+
+A globally consistent mosaic should use all overlap information to produce 
+the best possible representation of the scene. 
+
+This mosaic will include links
+from images that are not consecutive in time
+
+Typical approaches 
+will either work by adding incremental links to the mosaics as in a real-time 
+approach, or by solving for all of the images at once to distribute mis-registration 
+errors after all images have been collected. 
+
+Strictly local methods, which match neighboring images until until there is 
+only the final mosaic left, tend to accumulate errors 
+resulting in distortion \cite{Lin07}. Lin \cite{Lin07} proposed to register 
+each frame in an image sequence to its previous image that has been 
+referanced to a large frame map of the region. This resolves scale and rotation 
+differences between the images before solving for pixel wise matching which 
+prevents errors between frames from accumulating. 
+Although an interesting approach, 
+satellite imagery generally updates too slowly 
+to be useful for the dynamic state of sea ice. 
+
+TODO: talk about kalman filtering methods, etc
+
+The process of simultaneously 
+aligning all of the images is known as bundle adjustment and can be slow 
+to converge, but generally produces a more correct image \cite{Pizarro-thesis03}. 
+
+
+\subsection{Blending}
+
+A pixel in the final stitched mosaic corresponds to a single point in the scene, 
+but because that scene was captured at different times from a different viewpoint, the pixels from the images to be composited at that pixel may be different. Blending involves the process of determining the best color for the pixel in the context of the scene so that the seam cannot be seen. 
+
+Neighboring images in a mosaic can vary greatly in lighting, especially when 
+subsequent images are seperated by time. 
+To compensate for changes in illumination between neighboring images, 
+it is often necessary to blend the images together in a 
+manner such that the resulting mosaic is visually pleasing.  There are many 
+methods of performing blending. 
+
+TODO: talk about different approaches to blending
+
+Our approach utilizes the open 
+source tool, Enblend, that uses a multi-resolution spline to blend images 
+together using multi-resolution splines and Laplacian pyramids \cite{enblend, 
+Burt83thelaplacian}. 
+The spline operates across a transition zone that is proportional 
+to the spatial frequency of the region. Homogenous regions like an ice sheet 
+have low spatial frequency and are combined across a wide region.
+Strong color changes, 
+show high spatial frequency and are fused over a small area. 
+
+
+
+
 
 
 \subsection{Related Work}
@@ -471,7 +836,7 @@ approach for finding wide-baseline correspondences for mosaic building \cite{Bot
 
 
 
-\subsection{Featureless Scenes}
+\subsubsection{Featureless Scenes}
 Prasad, et al investigated the problem of developing mosaics in quadcopter surveys 
 with gaps in features using imu information to improve convergence time.
 The approach was demonstrated on building walls with only small regions (paintings) 
@@ -491,7 +856,7 @@ Large area addition aided by navigational sensors
 to generate 3D submaps that are merged using bundle adjustment \cite{Pizarro04}.
 
 
-\subsection{Dynamic Scenes}
+\subsubsection{Dynamic Scenes}
 Small dynamic scene mosaics have been tackled in \cite{Fitzgibbon01, Rav-Acha07, Davis98, Uyttendaele01}. 
 However, our approach was to use a simpler, masking scheme to bar the feature 
 extraction algorithm from extracting keypoints from the dynamic portions of our 
@@ -772,126 +1137,9 @@ and from simulated imagery.
 
 
 
-\chapter{Map Construction}
+\chapter{Mosaic Construction}
 \label{chap:features}
 TODO Introduction and overview
-\section{Determining Image Overlap}
-A reasonable amount of scene overlap (about 15-30\% overlap) with high quality features 
-is typically required to determine that two images should be stitched together. 
-Even if two images contain the scene, they  
-may have a different view of the same region. This difference in view can make
-make determining the correspondence difficult. Common changes in scene include 
-differences in illumination, a rotated view, scaling, or moving objects. 
-In the next section we discuss 
-methods used to quantify how similar two images are, given different viewpoints. 
-
-\subsection{Quantifying Images}
-Relating the images 
-requires overcoming noise and finding unrelated, unknown translations, scaling, 
-and rotations between images. 
-Methods of determining image similarity generally falls into two camps:
-direct and feature based approaches. Direct methods perform correlations or 
-convolution operations over the prospective
-images to measure their similarity. This involes 
-a computation across all of the pixels in the image and tends to be
-slow and memory intensive 
-\cite{Lucas81, Barnea72, Szeliski95, Shum-local98, Irani00}. 
-However, direct methods are able to solve for motion of the 
-camera and the correspondence of every pixel at the same time. Because this approach 
-compares pixel values directly, it is prone to falter under illumination changes. 
-The more modern approach is feature based..
-Feature
-based methods only measure the similarity of images based on 
-interesting regions of the image, such as lines, blobs, or edges. 
-The interesting regions are called \emph{features} 
-or \emph{keypoints}. Keypoints within the image must be found algorithmically 
-by a keypoint detection algorithm. Then the keypoint is described by a 
-\emph{descriptor} using a descriptor algorithm.  Descriptors have been developed so 
-that they are invariant to many of the transformations that plague images. 
-By comparing images using only their interesting features, the motion of the 
-camera can be solved for using only the
-parts of the image in which correspondence is easy to detect. This reduces 
-computational waste and improves accuracy.
-The geometry calculated using the descriptors 
-is then used to transform all of the pixels in 
-the image. 
-
-The feature based technique was perhaps first described by Schmid, who utilized Gaussian derivitives 
-to describe a keypoint in a manner that was rotationally invariant \cite{Schmid97}.
-Feature based methods are typically the modern approach because they are 
-generally less computationally intensive than direct methods and because the 
-feature descriptors can be developed to be invariant to image
-tranformations \cite{Forstner86, Lowe99, Brown03, Hu06, Elibol08}. 
-Our approach utilizes features and is discussed more thouroughly in 
-Chapter \ref{chap:features}. From here onward
-we will assume that overlap detection 
-is performed using the feature based approach. 
-
-Reliable  extraction of a manageable number of potentially 
-corresponding features is a crucial prerequisite to successful mosaicing. The 
-feature dectector and descriptor choice is of significant importance. 
-\subsection{Matching Features}
-After keypoints are extracted from two images, they must be compared for 
-similarity to determine if the images contain regions of the same scene. 
-
-Discrete Linear Transform is a least squares method that reduces the 
-effects of noise in the image measurements. A least-squares approach 
-may be corrupted by outliers, which are especially common among images with 
-repetitive features. 
-
-TODO: talk about Flann matcher - others, 
-Approximate nearest neighbors
-Maximum Likelihood
-Least Median of Squares (LMS),
-
-The correctness of the final mosaic is highly dependent on the 
-acuracy of each of the calculated 
-geometric relationship between overlapping images. 
-Robust estimation methods are an essential part of determining the relationship 
-between images. Many initial matches are incorrect. These incorrect matches 
-can be thrown out by a filtering. 
-Lowe showed that if the two best matches were close in distance, then the 
-probability of a false match was high \cite{Lowe04}. To combat this, he 
-proposed a simple \emph{Ratio Test}
-to measure the distance of the best match over the distance 
-of the second best match and eliminated the match if it was greater than a theshold. 
-%Second param is boolean variable, crossCheck which is false by default. If it is true, Matcher returns only those matches with value (i,j) such that i-th descriptor in set A has j-th descriptor in set B as the best match and vice-versa. That is, the two features in both sets should match each other. It provides consistant result, and is a good alternative to ratio test proposed by D.Lowe in SIFT paper.
-
-
-
-Another, more robust approach to filtering matches is RANSAC or "RANdom SAmple Consensus. RANSAC is a well known and widely in image registration \cite{RANSAC}
-
-
-
-%  iterative parameter 
-% estimation technique. It works by repeatedly taking random samples from a set 
-% of data, fitting it to a model and then measuring the error. 
-%
-%Fit a model to data with the RANSAC (random sample consensus) algorithm.
-%
-%RANSAC is an iterative algorithm for the robust estimation of parameters from a subset of inliers from the complete data set. Each iteration performs the following tasks:
-%
-%    Select min_samples random samples from the original data and check whether the set of data is valid (see is_data_valid).
-%    Estimate a model to the random subset (model_cls.estimate(*data[random_subset]) and check whether the estimated model is valid (see is_model_valid).
-%    Classify all data as inliers or outliers by calculating the residuals to the estimated model (model_cls.residuals(*data)) - all data samples with residuals smaller than the residual_threshold are considered as inliers.
-%    Save estimated model as best model if number of inlier samples is maximal. In case the current estimated model has the same number of inliers, it is only considered as the best model if it has less sum of residuals.
-%
-%These steps are performed either a maximum number of times or until one of the special stop criteria are met. The final model is estimated using all inlier samples of the previously determined best model.
-%
-
-
-
-
-RANSAC can be described by the following actions: 
-\begin{enumerate}
-    \item{Select a random set of minimum correspondences and compute the homography.}
-    \item{Calculate a distance error for each of the sampled matches and classify 
-        those within a threshold of ever as \emph{inliers}}
-   \item{Select the homography, with the most inliers as the matrix that describes the image transformation.}
-   \item{Restimate the homography based on all of the matches classified as inliers}
-\end{enumerate}
-
-
 
 
 
@@ -943,6 +1191,13 @@ In the following sections, feature detectors and descriptors are discussed and
 evaluated on our dataset based on a number of points: 
 
 %where high precision relates to a low false positive rate, and high recall relates to a low false negative rate. High scores for both show that the classifier is returning accurate results (high precision), as well as returning a majority of all positive results (high recall).
+%Least median of squares (LMedS) is used for outlier rejection and a M-Estimator to compute the final result. This model is used if more than the 65\% of the matches are successfully tracked.
+%. Affine homography. If the percentage of success in thetrackingstepisbetween40\% and65\%,thenthe LMedS isnotused,giventhereductioninthenumber ofmatches.A relaxedM-Estimator(softpenalization) is carried out to compute the model.
+%
+%Euclidean homography. If the percentage is below 40\%, the set of data is too noisy and small to apply non- linear minimizations. The model is computed using least-squares.
+%\cite{Caballero07}
+
+
 
 
 \begin{itemize}
@@ -1008,14 +1263,6 @@ are used in the evaluation.
 TODO:
 plot featureless comparisons for each of the descriptors at one rotation
 
-One of the most well known and often used keypoint descriptors is Scale
-Invariant Feature Transforms (SIFT) \cite{Lowe04}. SIFT descriptors detects keypoints 
-based on Difference of Gaussians (DOG). This algorithm, developed in 2004
-has consistently been the top performer in terms of  
-scale and rotation invariance, though it is has the highest overhead
-of the descriptors discussed. Since SIFT, many SIFT-like descriptors have been 
-introduced such as SURF \cite{Bay-SURF08}, and ASIFT  \cite{ASIFT} to 
-reduce computation time.  
 \begin{figure}
     \centering
     \begin{minipage}{.5\textwidth}
@@ -1035,100 +1282,6 @@ reduce computation time.
 \end{figure}
 
 
-
-A successor to SIFT, Speeded-Up Robust Features (SURF) 
-yields similar feature performance to SURF, but with 
-faster computation time \cite{Bay-SURF08}. The performance improvement is 
-acomplished by describing keypoints with the responses of Haar-like filters. 
-Haar features are global-texture based. Both SIFT and SURF use an orientation 
-operator. 
-%Good foundation paper on multiscale approach \cite{Brown05} ??
-%- this seemed to have a good descript of sift: http://www.cs.cmu.edu/~rahuls/pub/cvpr2004-keypoint-rahuls.pdf
-
-%ORB
-Although SURF achieves some speed gain over SIFT, it is still not realistic 
-for real-time applications on platorms with limited capability \cite{Bekele13}. 
-Binary keypoint descriptors aim to provide lightweight and fast computation with 
-good performance by building the descriptor such that each bit is independent.
-This allows Hamming distance to be used rather than Eucliden distance to measure 
-similarity \cite{Bekele13}. TODO: should I change matching depending on Descriptor?
-Heinly showed that the speed improvement in matching binary desscriptors 
-result in only marginal matching performance penalties \cite{Heinly12}.
-
-The Oriented FAST and Rotated BRIEF descriptor, or ORB, 
-is a computationally efficient alternative to SIFT and SURF
-and can be used in real-time 
-on many platforms \cite{Rublee-ORB11}. 
-Like its name suggests, it works off of the very efficient FAST keypoint 
-detector \cite{Rosten-FAST06} and BRIEF descriptor \cite{Calonder-BRIEF10}.
-ORB overcomes the lack or rotational invariance in the BRIEF descriptor by 
-de-correlating BRIEF features under rotational invariance, however, ORB is
-only somewhat scale invariant.
-
-%BRISK
-%FREAK
-The FREAK descriptor, developed in 2012 by Alahi improves upon the BRISK
-descriptor \cite{Leutenegger-BRISK11} and was 
-inspired by the retinal pattern in the biological eye. 
-FREAKs are in general faster to compute with lower memory load than 
- SIFT, SURF or BRISK \cite{Alahi-FREAK12}. Most approaches use 
-SURF keypoints for FREAK descriptors as 
-the they are invariant to rotation and scale changes.
-
-% A cascade of binary strings is computed by efficiently comparing image intensities over a retinal sampling pattern. FREAKs are in general faster to compute with lower memory load and also more robust than SIFT, SURF or BRISK. They are competitive alternatives to existing keypoints in particular for embedded applications.
-
-
-
-Zernike moment descriptors are a set of orthogonal polynomials that 
-work well in the presence of 
-rotation, noise,  and large scale changes in a computationally efficient manner. 
-In 2003, Pizarro introduced a zernike-feature based 
-approach to mosaic large scale featureless
-scenes underwater with lighting correction \cite{Pizarro03}.
-
-We utilize the classic Harris keypoints for fast corner finding. 
-Harris keypoints are detected at the local minima of an autocorrelation 
-function that is invariant to geometric image transformation \cite{Schmid98}. 
-
-TODO: read and cite these
-Used zernike to create mosaic - read more \cite{Zhanlong13}
-\cite{dudek}
-\cite{Zhanlong13, Pizarro03, Badra98, Badra99}
-\cite{Bin02}
-Use this for equations
-\cite{Ameyah07} 
-\cite{Hwang08}
-\cite{Chen10}
-Learn descriptors using conv net. 
-\cite{Simo15}
-%Zernike Polynomials 
-%complex polynomials that are orthogonal over the unit circle $x^2 + y^2 = 1$. 
-%They can be expressed in radial and angular components. 
-%
-%\label{eq:zernike polynomial}
-%V_{nm}(x,y) = V_{nm}(\rho, \theta) = R_{nm}(\rho)\emph{e}^{im\theta}
-%$
-%\emph{n} is a positive integer
-%\emph{m} is an integer such that $n-|m|$ is even and $|m|<=n$
-%$\rho$ is the magnitude of the vector from the origin to the point $(x,y)=x^2+y^2$
-%$\theta$ is the angle between the vector and the x-axis in a counter-clockwise direction
-
-
-
-Alahi et al. show that using a grid of well performing descriptors achieves better 
-matching than using a single one to match an image region \cite{Alahi10}. 
-%Features with a low success ratio in matching (about 0.5) are deleted from the 
-%map if at least 10 matches have been attempted. Mapmaintence allows deleting of non 
-%trackable features - for instance those captured on moving objects such as 
-%waves or people. 
-
-%The percentage of successful matches obtained by the point tracker is used to have an estimation about the level ofthehierarchywherethehomographycomputationshould start.Thesepercentagethresholdswereobtainedempirically byprocessinghundredsofaerialimages.Eachlevelinvolves thefollowingdifferentsteps:
-%.Complete homography. Least median of squares (LMedS) is used for outlier rejection and a M-Estimator to compute the final result. This model is used if more than the 65\% of the matches are successfully tracked.
-%. Affine homography. If the percentage of success in thetrackingstepisbetween40\% and65\%,thenthe LMedS isnotused,giventhereductioninthenumber ofmatches.A relaxedM-Estimator(softpenalization) is carried out to compute the model.
-%
-%Euclidean homography. If the percentage is below 40\%, the set of data is too noisy and small to apply non- linear minimizations. The model is computed using least-squares.
-%\cite{Caballero07}
-
 This approach utilizes 
 the knowledge that the UAV captured images in a spatial order as it was flying, 
 so we attempt to match images with neighboring timestamps first.
@@ -1138,150 +1291,13 @@ Local motion around each feature point is expected to be mostly
 translational with minimal roll and pitch of the camera. 
 
 
+%Features with a low success ratio in matching (about 0.5) are deleted from the 
+%map if at least 10 matches have been attempted. Mapmaintence allows deleting of non 
+%trackable features - for instance those captured on moving objects such as 
+%waves or people. 
 
-
-\section{Defining the Transformation}
-After the corresponding pixels 
-between overlapping images have been identified, we need to estimate
-the relationship between the images. This 
-process is called image registration and attempts to find an alignment  
-between the images that minimizes the difference between overlapping pixels.
-A Homography is a transformation that is defined by a matrix which 
-maps the points in one image to
-the corresponding points in the other image.
-The transformations 
-can be translation, similarity, affine, or projective with 2, 4, 6, and 8 parameters 
-respectively. 
-We will discuss each 
-of these transformations in the following paragraphs as they are defined in 
-\cite{SzeliskiBook}..
-TODO explain transformations 
-
-The image registration process can 
-be described as $x'=H*x$ where $x$ is the image coordinate system and 
-$x'$ is the mosaic coordinate system, and $H$ is the homography 
-matrix that defines the tranformstion. 
-
-A projective transform only preserves straight lines and is the farthest an 
-image can be transformed. 
-The projective transformation is used in many mosaicing approaches, but can 
-result in errors in instances with low overlap between 
-images or when there are few distinctive features available \cite{Wang11}.
-
-An affine tranformation describes scale, rotation, translation, and skew 
-between two 2D planes in 2D space. This model is unable to 
-explain 3D motions between two image planes, but provides superior 
-stability when compared to projective transformation. 
-In near-flat  areas,  the 
-errors of object height projections  may be  negligible. Thus, the 
-affine  transformation  can  be  directly  implemented.  
-For our sea ice imagery, we take advantage of the 
-large distance to the scene and the generally planar terrain surface and
- adopt a model which assumes equal distance to each object in the image. This 
- allows the use of the more stable  
-utilize affine transformation to translate the image coordinates.
-
-% it is viewed from sufficient distance that relative depth variation is low and parallax is small. This allows a much simpler model to be used: two images of a planar surface captured through a pinhole camera are related by a perspective transformation: if two images each show the same plane, then there is a homography (3×3 matrix)H such that for all x in the first image and x′ in the second image (represented in homogeneous coordinates), Hx=x′.
+%The percentage of successful matches obtained by the point tracker is used to have an estimation about the level ofthehierarchywherethehomographycomputationshould start.Thesepercentagethresholdswereobtainedempirically byprocessinghundredsofaerialimages.Eachlevelinvolves thefollowingdifferentsteps:
 %
-%For many mosaicing applications a simpler model is appropriate: for a rotating camera at a fixed location (all points are on the plane at infinity), a simple 2D translation and 1D rotation is sufficient to align two images. For a strictly down-pointing camera on an aerial platform a similarity transform (rotation, translation and scale) is sufficient. For a camera with a small field-of-view the perspective transformation may be approximated with an affine transformation: Ax+t=x′ for a 2×2 transformation matrix A and 2D translation t.
-
-% This can be computed without any knowledge of 
-%the internal camera calibration parameters such as focal length, 
-%optical center, or relative camera motion between frames. 
-
-
-%An image 
-%transformation can be described by ... type of transformation matrix.
-%\ref{eq:General tranformation equation} where 
-%\emph{$s_i$} indicates scaling, 
-%\emph{$r_i$} rotation, and \emph{$t_i$} dictactes translation in the i-th direction. 
-%Thus, the problem can be reduced to recovering each component independently.
-%
-%
-% $$
-% \label{eq:General transformation equation}
-% M =
-% \begin{bmatrix}
-% s_xr_{11}&s_xr_{12}&t_x \\ s_yr_{21}&s_yr_{22}&t_y \\ 0&0&1\\
-% \end{bmatrix}
-% $$
-
-
-%TODO: read \cite{Shum-local98}
-%%%%%%%%%%%%%%%%%%%%%%%
-%TODO: read \cite{Shum-3D98} about 3d stuff 
-%This reduces the undesirable projection errors that are easily propagated 
-%with prjoective transformations \cite{Wang11}.
-
-
-\section{Projection Models}
-
-
-The calculated homography 
-is used to warp the image onto the reference plane. 
-A projection model is necessary to project a 3D scene onto a two-dimensional 
-surface. The choice of a projection model is important and highly dependent on 
-the selected data. 
-For this work we assume a planar model to preserve simplicity and because the 
-dataset consists of flat ice over a planar surface.
-Here there exists a much  larger distance between 
-the camera and the ground than  the vertical component of any of the  features. 
-
-A spherical projection is often used in the case of a panoramoic in which 
-the camera was rotated about its centerline. 
-
-TODO: expand
-
-\section{Global Optimization}
-
-A globally consistent mosaic should use all overlap information to produce 
-the best possible representation of the scene. This mosaic will include links
-from images that are not consecutive in time
-
-Typical approaches 
-will either work by adding incremental links to the mosaics as in a real-time 
-approach, or by solving for all of the images at once to distribute mis-registration 
-errors after all images have been collected. 
-
-Strictly local methods, which match neighboring images until until there is 
-only the final mosaic left, tend to accumulate errors 
-resulting in distortion \cite{Lin07}. Lin \cite{Lin07} proposed to register 
-each frame in an image sequence to its previous image that has been 
-referanced to a large frame map of the region. This resolves scale and rotation 
-differences between the images before solving for pixel wise matching which 
-prevents errors between frames from accumulating. 
-Although an interesting approach, 
-satellite imagery generally updates too slowly 
-to be useful for the dynamic state of sea ice. 
-
-TODO: talk about kalman filtering methods, etc
-
-The process of simultaneously 
-aligning all of the images is known as bundle adjustment and can be slow 
-to converge, but generally produces a more correct image \cite{Pizarro-thesis03}. 
-
-
-\section{Blending}
-
-Neighboring images in a mosaic can vary greatly in lighting, especially when 
-subsequent images are seperated by time. 
-To compensate for changes in illumination between neighboring images, 
-it is often necessary to blend the images together in a 
-manner such that the resulting mosaic is visually pleasing.  There are many 
-methods of performing blending. 
-
-TODO: talk about different approaches to blending
-
-Our approach utilizes the open 
-source tool, Enblend, that uses a multi-resolution spline to blend images 
-together using multi-resolution splines and Laplacian pyramids \cite{enblend, 
-Burt83thelaplacian}. 
-The spline operates across a transition zone that is proportional 
-to the spatial frequency of the region. Homogenous regions like an ice sheet 
-have low spatial frequency and are combined across a wide region.
-Strong color changes, 
-show high spatial frequency and are fused over a small area. 
-
 
 
 
@@ -1328,7 +1344,7 @@ TODO: total number of photos, total coverage area
         \includegraphics[width=.9\linewidth,height=0.6\linewidth]{uav_snow_d.jpg}
         \captionsetup{width=0.9\linewidth}
         \captionof{figure}{The Phantom FPV Flying Wing EPO UAV used to gather data over sea ice. This vehicle was equipped with a TODO camera for capturing images. }
-         \label{fig:phantom}
+         \label{fig:ouruav}
      \end{minipage}%
      \begin{minipage}{.5\textwidth}
          \centering
@@ -1341,7 +1357,7 @@ TODO: total number of photos, total coverage area
 
 
 \subsection{Flight Vehicle}
-The vehicle used in our experiments is a fixed-wing UAV pictured in Figure \ref{phantom}. This vehicle has an endurance of 
+The vehicle used in our experiments is a fixed-wing UAV pictured in Figure \ref{ouruav}. This vehicle has an endurance of 
 approximately TODO. The vehicle has autonomous flight system which follows 
 a specified trajectory over the earth's surface at a prescribed altitude. 
 
@@ -1350,7 +1366,8 @@ The vehicle caries a payload of low-cost IMU, GPS receiver and a
 downwards-mounted color camera. The GPS receiver computes earth-referenced position at TODO Hz with an accuracy of TODO. Photos are captured at a resolution 
 of 6000x4000 pixels at a rate of TODO Hz. An onboard computer logs sensor data 
 which is processed after the flight. 
-
+Lens used is a Sony E  with a focal length of $20 mm$. 
+Camera is a Sony ICLE-5100.
 \section{Results}
 
 \section{Classification}
